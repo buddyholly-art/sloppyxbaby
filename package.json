@@ -1,23 +1,24 @@
 {
-  "name": "audhd-vibe-coding-prompt-advocate",
+  "name": "sloppyxbaby.com",
   "private": true,
   "version": "1.0.0",
-  "description": "The ultimate Software 3.0 prompt compiler inspired by Andrej Karpathy's 'vibe coding' philosophy. Optimizes cognitive accessibility and context engineering structures for agentic execution loops.",
+  "description": "SloppyXBaby Prompt Advocate \u2014 anti-AI-slop prompt compiler and LLM context engineering funnel.",
   "keywords": [
-    "vibe-coding",
-    "andrej-karpathy",
-    "software-3-0",
+    "anti-ai-slop",
     "prompt-engineering",
+    "llm-context-engineering",
     "prompt-compiler",
+    "vibe-coding",
     "audhd",
     "cognitive-accessibility"
   ],
   "type": "module",
   "scripts": {
-    "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
-    "start": "node dist/server.cjs",
-    "clean": "rm -rf dist",
+    "dev": "vite",
+    "pages:dev": "wrangler pages dev --compatibility-date=2026-06-23",
+    "build": "vite build",
+    "deploy": "wrangler pages deploy",
+    "clean": "rm -rf dist .wrangler",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
@@ -27,6 +28,7 @@
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "firebase": "^12.15.0",
+    "hono": "^4.12.27",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "react": "^19.0.1",
@@ -35,13 +37,16 @@
     "vite": "^6.2.3"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260624.1",
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
+    "react-router-dom": "^7.18.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.3"
+    "vite": "^6.2.3",
+    "wrangler": "^4.104.0"
   }
 }
