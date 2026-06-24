@@ -56,7 +56,7 @@ fi
 # Append NDJSON worklog entry
 if [ -f "$WORKLOG" ]; then
   UUID=$(python3 -c 'import uuid; print(uuid.uuid4())')
-  ISO_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  ISO_TIME=$(date +%Y-%m-%dT%H:%M:%S%z)
   printf '{"id":"%s","timestamp":"%s","event_type":"deploy","scope":"repo/git","summary":"%s","references":["%s"],"tags":["git","commit","push","github"],"status":"closed","owner":"agent:Hermes"}\n' \
     "$UUID" "$ISO_TIME" "Committed and pushed $REPO_NAME@$CURRENT_BRANCH: $COMMIT_MSG" "$COMMIT_URL" >> "$WORKLOG"
   echo "Worklog entry appended."
