@@ -1,0 +1,73 @@
+#!/bin/bash
+# WHAT IS THIS: bin/agent-commit
+# PURPOSE: Stages, commits, pushes to GitHub, logs to the project NDJSON worklog, and mirrors to the GBrain telemetry thread.
+# NEXT STEP: chmod +x bin/agent-commit && ./bin/agent-commit "type(scope): description"
+
+set -euo pipefail
+
+START_TIME=$(date +%s)
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+CURRENT_BRANCH=$(git branch --show-current)
+REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_NAME=$(basename "$REPO_ROOT")
+REMOTE_URL=$(git remote get-url origin 2>/dev/null || echo "")
+WORKLOG="$REPO_ROOT/worklog/log.jsonl"
+VAULT_NOTE="$HOME/Documents/Obsidian Vault/Threads/AGENT-TELEMETRY-THREAD.md"
+
+echo "[$TIMESTAMP] agent-commit initializing..."
+echo "  Purpose: checkpoint changes to GitHub and telemetry"
+
+COMMIT_MSG="${1:-chore: automated agent checkpoint}"
+
+# Stage changes
+git -C "$REPO_ROOT" add -A
+
+# Commit
+if ! COMMIT_OUT=$(git -C "$REPO_ROOT" commit -m "$COMMIT_MSG" 2>&1); then
+  echo "ABORT: Local commit failed."
+  echo "$COMMIT_OUT"
+  exit 1
+fi
+
+COMMIT_HASH=$(git -C "$REPO_ROOT" rev-parse --short HEAD)
+
+# Push
+echo "Syncing with GitHub remote on branch $CURRENT_BRANCH..."
+if ! PUSH_OUT=$(git -C "$REPO_ROOT" push origin "$CURRENT_BRANCH" 2>&1); then
+  echo "ABORT: Push failed."
+  echo "$PUSH_OUT"
+  exit 1
+fi
+
+END_TIME=$(date +%s)
+LATENCY=$((END_TIME - START_TIME))
+
+# Build commit URL
+COMMIT_URL=""
+if [[ "$REMOTE_URL" == git@github.com:* ]]; then
+  ORG_REPO=${REMOTE_URL#git@github.com:}
+  ORG_REPO=${ORG_REPO%.git}
+  COMMIT_URL="https://github.com/$ORG_REPO/commit/$COMMIT_HASH"
+elif [[ "$REMOTE_URL" == https://github.com/* ]]; then
+  ORG_REPO=$(echo "$REMOTE_URL" | sed -E 's|https://github.com/([^/]+/[^/]+)(\.git)?|\1|')
+  COMMIT_URL="https://github.com/$ORG_REPO/commit/$COMMIT_HASH"
+fi
+
+# Append NDJSON worklog entry
+if [ -f "$WORKLOG" ]; then
+  UUID=$(python3 -c 'import uuid; print(uuid.uuid4())')
+  ISO_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  printf '{"id":"%s","timestamp":"%s","event_type":"deploy","scope":"repo/git","summary":"%s","references":["%s"],"tags":["git","commit","push","github"],"status":"closed","owner":"agent:Hermes"}\n' \
+    "$UUID" "$ISO_TIME" "Committed and pushed $REPO_NAME@$CURRENT_BRANCH: $COMMIT_MSG" "$COMMIT_URL" >> "$WORKLOG"
+  echo "Worklog entry appended."
+fi
+
+# Mirror to GBrain telemetry thread
+if [ -f "$VAULT_NOTE" ]; then
+  printf '\n### Run Checkpoint: %s\n* **Repo**: `%s`\n* **Branch**: `%s`\n* **Commit**: `%s` %s\n* **Message**: %s\n* **Sync Status**: Success\n* **Latency**: %ss\n' \
+    "$TIMESTAMP" "$REPO_NAME" "$CURRENT_BRANCH" "$COMMIT_HASH" "$COMMIT_URL" "$COMMIT_MSG" "$LATENCY" >> "$VAULT_NOTE"
+  echo "Telemetry mirror appended."
+fi
+
+echo "SUCCESS: Checkpoint committed and pushed ($COMMIT_HASH)."
+echo "  Commit URL: $COMMIT_URL"
