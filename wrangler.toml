@@ -1,0 +1,12 @@
+name = "sloppyxbaby-com"
+compatibility_date = "2026-06-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist"
+
+[[kv_namespaces]]
+binding = "SXB_KV"
+id = "bbcc99a9cd704f6481cfb890593b19f1"
+
+[vars]
+APP_NAME = "SloppyXBaby"
+SXB_STRIPE_PRICE_CREDIT_PACK = "price_1TliBQAqP1ZIyUIkXS0Uasp7"

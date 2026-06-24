@@ -711,7 +711,7 @@ Standing: Statically superior to 94.7% of vibe-crafted projects!`}
                   </span>
 
                   <button
-                    type="type"
+                    type="button"
                     onClick={() => setShowVictory(false)}
                     className="btn-ghost"
                   >
