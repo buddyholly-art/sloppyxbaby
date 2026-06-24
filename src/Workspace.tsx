@@ -276,7 +276,7 @@ export default function App() {
           <div className="max-w-3xl">
             <span className="eyebrow">
               <span className="eyebrow-dot" />
-              AuDHD · Working-Memory Support · 2025
+              X AI slop! → baby-smooth · AuDHD · Working-Memory Support
             </span>
             <h1 className="text-display mt-6 mb-7 max-w-[14ch]">
               Anti-slop prompt engineering{' '}

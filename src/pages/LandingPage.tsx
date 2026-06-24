@@ -81,7 +81,7 @@ export default function LandingPage() {
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-sage-dim)] text-[var(--color-sage)] text-xs font-semibold tracking-wide uppercase">
               <Sparkles className="w-3.5 h-3.5" />
-              Anti-AI-Slop Prompt Engineering
+              X AI slop! → baby-smooth prompts
             </span>
             <h1 className="mt-6 text-[clamp(44px,6vw,76px)] font-bold leading-[1.05] tracking-[-0.035em]">
               Your prompts are sloppy.{' '}
@@ -239,9 +239,12 @@ export default function LandingPage() {
       <footer className="relative z-10 max-w-[1200px] mx-auto px-6 py-10 border-t border-[var(--color-hairline)]">
         <div className="flex flex-col md:flex-row justify-between gap-4 text-sm text-[var(--color-muted)]">
           <span>© {new Date().getFullYear()} SloppyXBaby. Evidence-based prompt engineering.</span>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap gap-6">
             <Link to="/tactics" className="hover:text-[var(--color-ink)]">Tactics</Link>
             <Link to="/app" className="hover:text-[var(--color-ink)]">Workspace</Link>
+            <Link to="/privacy" className="hover:text-[var(--color-ink)]">Privacy</Link>
+            <Link to="/terms" className="hover:text-[var(--color-ink)]">Terms</Link>
+            <Link to="/cookies" className="hover:text-[var(--color-ink)]">Cookies</Link>
           </div>
         </div>
       </footer>

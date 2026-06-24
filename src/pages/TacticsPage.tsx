@@ -46,6 +46,7 @@ export default function TacticsPage() {
         </Link>
       </nav>
       <main className="relative z-10 max-w-[800px] mx-auto px-6 pb-20">
+        <p className="text-xs font-[var(--font-mono)] uppercase tracking-[0.18em] text-[var(--color-sage)] mb-4">X AI slop! → baby-smooth</p>
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">LLM Context Engineering Tactics</h1>
         <p className="text-lg text-[var(--color-muted)] mb-12">
           A condensed reference for turning vague ideas into high-integrity prompts. These principles are baked into every prompt the SloppyXBaby advocate produces.
@@ -65,6 +66,13 @@ export default function TacticsPage() {
           </Link>
         </div>
       </main>
+
+      <footer className="relative z-10 max-w-[800px] mx-auto px-6 py-10 border-t border-[var(--color-hairline)] text-sm text-[var(--color-muted)] flex flex-wrap gap-6">
+        <Link to="/" className="hover:text-[var(--color-ink)]">Home</Link>
+        <Link to="/privacy" className="hover:text-[var(--color-ink)]">Privacy</Link>
+        <Link to="/terms" className="hover:text-[var(--color-ink)]">Terms</Link>
+        <Link to="/cookies" className="hover:text-[var(--color-ink)]">Cookies</Link>
+      </footer>
     </div>
   );
 }

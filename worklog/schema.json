@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sloppyxbaby.com/worklog/schema.json",
+  "title": "SloppyXBaby Worklog Entry",
+  "description": "Machine-readable, append-only worklog for the sloppyxbaby.com project. One JSON object per line in worklog/log.jsonl.",
+  "type": "object",
+  "required": ["id", "timestamp", "event_type", "scope", "summary"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Stable unique identifier for this entry."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when the entry was recorded."
+    },
+    "event_type": {
+      "type": "string",
+      "enum": ["decision", "action", "milestone", "issue", "note", "blocker", "fix", "deploy"],
+      "description": "Kind of worklog event."
+    },
+    "scope": {
+      "type": "string",
+      "description": "Module, file, subsystem, or area affected. Use forward-slash paths or free tags."
+    },
+    "summary": {
+      "type": "string",
+      "description": "One-line human-readable summary."
+    },
+    "details": {
+      "type": "string",
+      "description": "Longer explanation, optional."
+    },
+    "references": {
+      "type": "array",
+      "items": { "type": "string", "format": "uri" },
+      "description": "Links to commits, PRs, docs, tickets, or external resources."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Free-form labels for grouping and filtering."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["open", "closed", "ongoing", "blocked"],
+      "description": "Current state of the item, if applicable."
+    },
+    "owner": {
+      "type": "string",
+      "description": "Who recorded the entry, e.g. agent:Hermes or user:Oliver."
+    }
+  },
+  "additionalProperties": true
+}
