@@ -1,4 +1,4 @@
-# sloppyxbaby.com
+# sloppyxbaby
 
 **SloppyXBaby Prompt Advocate** — a conversion-focused, anti-AI-slop prompt engineering workspace for developers who are tired of generic LLM output.
 

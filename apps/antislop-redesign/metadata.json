@@ -1,0 +1,8 @@
+{
+  "name": "AuDHD Vibe Coding Prompt Advocate",
+  "description": "The ultimate Software 3.0 compiler inspired by Andrej Karpathy's 'vibe coding' philosophy. Optimizes cognitive accessibility architecture to guide executing autonomous agents safely.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

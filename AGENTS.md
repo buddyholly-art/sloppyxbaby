@@ -1,4 +1,4 @@
-# AGENTS.md — sloppyxbaby.com
+# AGENTS.md — sloppyxbaby
 
 ## Project Identity
 
