@@ -1,0 +1,86 @@
+/* Manual landing page additions — Version B */
+
+/* Paper grain overlay so empty space feels intentional */
+.paper-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Gold drip animation */
+.gold-drip {
+  filter: drop-shadow(0 12px 24px rgba(212, 175, 55, 0.25));
+}
+
+.gold-drop {
+  transform-origin: center top;
+  animation: gold-drop-bulge 3s ease-in-out infinite;
+}
+
+@keyframes gold-drop-bulge {
+  0%, 80% { transform: scale(1); opacity: 1; }
+  90% { transform: scale(1.25); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.gold-drift {
+  animation: gold-drift-sway 20s ease-in-out infinite alternate;
+}
+
+@keyframes gold-drift-sway {
+  from { transform: translate3d(0, 0, 0) rotate(-2deg); }
+  to { transform: translate3d(12px, 8px, 0) rotate(2deg); }
+}
+
+/* Intent router cards */
+.intent-card {
+  position: relative;
+  padding: 1.5rem;
+  border-radius: var(--radius-shell);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--color-hairline);
+  box-shadow: var(--shadow-card);
+  transition: transform 500ms var(--ease-smooth), box-shadow 500ms var(--ease-smooth), border-color 500ms var(--ease-smooth);
+}
+
+.intent-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: rgba(31, 77, 63, 0.18);
+}
+
+.intent-card--active {
+  border-color: rgba(212, 175, 55, 0.55);
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.25), 0 30px 70px -22px rgba(10, 10, 10, 0.22);
+}
+
+/* Mobile-first sticky CTA */
+@media (min-width: 768px) {
+  .fixed.bottom-0 {
+    display: none;
+  }
+}
+
+/* Slightly simplify ambient mesh on mobile */
+@media (max-width: 768px) {
+  .ambient-mesh::after {
+    display: none;
+  }
+  .gold-drift {
+    opacity: 0.25;
+    width: 8rem;
+    height: 8rem;
+  }
+}
+
+/* Ensure nav shell still works with new hero */
+.nav-shell {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+}

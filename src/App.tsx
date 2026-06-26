@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
+import LandingPageManual from './pages/LandingPageManual';
 import TacticsPage from './pages/TacticsPage';
 import ThanksPage from './pages/ThanksPage';
 import PrivacyPage from './pages/PrivacyPage';
@@ -12,7 +13,8 @@ export default function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<LandingPageManual />} />
+        <Route path="/legacy" element={<LandingPage />} />
         <Route path="/tactics" element={<TacticsPage />} />
         <Route path="/thanks" element={<ThanksPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
