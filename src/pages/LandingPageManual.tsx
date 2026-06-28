@@ -44,6 +44,36 @@ const FLAG_POOL = [
   'no guardrails',
 ];
 
+function prefersReducedMotion() {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function countUp(
+  setter: (value: string) => void,
+  endValue: number,
+  suffix: string,
+  duration: number,
+  decimals = 0
+) {
+  if (prefersReducedMotion()) {
+    setter(endValue.toFixed(decimals) + suffix);
+    return;
+  }
+  const startTime = performance.now();
+  const startValue = 0;
+  const range = endValue - startValue;
+
+  function step(now: number) {
+    const progress = Math.min((now - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = startValue + range * eased;
+    setter(current.toFixed(decimals) + suffix);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
 export default function LandingPageManual() {
   const [navOpen, setNavOpen] = useState(false);
 
@@ -62,6 +92,11 @@ export default function LandingPageManual() {
     barBloat: string;
   } | null>(null);
 
+  const [displayScore, setDisplayScore] = useState('0%');
+  const [displayDebt, setDisplayDebt] = useState('0.00');
+  const [displayContext, setDisplayContext] = useState('0%');
+  const [displayBloat, setDisplayBloat] = useState('0.0σ');
+
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState<string | null>(null);
   const [generateError, setGenerateError] = useState('');
@@ -70,8 +105,9 @@ export default function LandingPageManual() {
 
   const quoteTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Scroll reveal
+  // Hero entrance + scroll reveal
   useEffect(() => {
+    document.querySelectorAll('.hero-entrance').forEach((el) => el.classList.add('is-in'));
     const reveals = document.querySelectorAll('.reveal');
     const io = new IntersectionObserver(
       (entries) => {
@@ -87,6 +123,7 @@ export default function LandingPageManual() {
 
   // Quote auto-advance
   useEffect(() => {
+    if (prefersReducedMotion()) return;
     quoteTimer.current = setInterval(() => {
       setQuoteIndex((i) => (i + 1) % QUOTES.length);
     }, 7000);
@@ -94,6 +131,20 @@ export default function LandingPageManual() {
       if (quoteTimer.current) clearInterval(quoteTimer.current);
     };
   }, []);
+
+  // Count-up animation when scan result appears
+  useEffect(() => {
+    if (!scanResult) return;
+    const score = scanResult.score;
+    const debtVal = score / 100 * 0.8 + 0.1;
+    const contextVal = Math.floor(score * 0.6);
+    const bloatVal = score / 30;
+
+    countUp(setDisplayScore, score, '%', 900, 0);
+    countUp(setDisplayDebt, debtVal, '', 900, 2);
+    countUp(setDisplayContext, contextVal, '%', 900, 0);
+    countUp(setDisplayBloat, bloatVal, 'σ', 900, 1);
+  }, [scanResult]);
 
   const runAudit = () => {
     const text = prompt.trim();
@@ -118,13 +169,17 @@ export default function LandingPageManual() {
         if (!flags.includes(extra)) flags.push(extra);
       }
 
+      const debtVal = score / 100 * 0.8 + 0.1;
+      const contextVal = Math.floor(score * 0.6);
+      const bloatVal = score / 30;
+
       setScanResult({
         score,
         flags: flags.slice(0, 3),
         summary: `Your prompt scores ${score}% bloat risk. The compiler can collapse this into one structured spec with role, task, constraints, and output format.`,
-        debt: (score / 100 * 0.8 + 0.1).toFixed(2),
-        context: `${Math.floor(score * 0.6)}%`,
-        bloat: `${(score / 30).toFixed(1)}σ`,
+        debt: debtVal.toFixed(2),
+        context: `${contextVal}%`,
+        bloat: `${bloatVal.toFixed(1)}σ`,
         barDebt: `${Math.min(100, score * 0.7)}%`,
         barContext: `${Math.min(100, score * 0.6)}%`,
         barBloat: `${Math.min(100, score)}%`,
@@ -194,9 +249,9 @@ export default function LandingPageManual() {
 
   return (
     <div className="min-h-screen bg-canvas text-ink font-[var(--font-sans)] overflow-x-hidden">
-      {/* Sticky nav — custom class to avoid collision with manual-landing.css .nav-shell override */}
+      {/* Sticky nav */}
       <nav
-        className="sticky top-[20px] z-50 mx-auto mt-[20px] p-[6px] w-max max-w-[calc(100%-48px)] rounded-[var(--radius-pill)] bg-surface backdrop-blur-[22px] saturate-[160%] shadow-[var(--shadow-nav)]"
+        className="hero-entrance sticky top-[20px] z-50 mx-auto mt-[20px] p-[6px] w-max max-w-[calc(100%-48px)] rounded-[var(--radius-pill)] bg-surface backdrop-blur-[22px] saturate-[160%] shadow-[var(--shadow-nav)]"
         role="navigation"
         aria-label="Primary"
       >
@@ -254,19 +309,19 @@ export default function LandingPageManual() {
         <section className="pt-14 pb-10">
           <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
             <div className="grid md:grid-cols-[1.15fr_0.85fr] gap-10 items-center text-center md:text-left">
-              <div className="reveal">
-                <span className="eyebrow">
+              <div>
+                <span className="hero-entrance eyebrow" data-stagger="1">
                   <span className="eyebrow-dot" />
                   DeepSeek-V3 / R1 reasoning routes
                 </span>
-                <h1 className="text-display mt-6">
+                <h1 className="hero-entrance text-display mt-6" data-stagger="2">
                   Your ideas are good.{' '}
                   <span className="text-sage">Your prompts are sloppy.</span>
                 </h1>
-                <p className="text-lede mt-[22px] mx-auto md:mx-0">
+                <p className="hero-entrance text-lede mt-[22px] mx-auto md:mx-0" data-stagger="3">
                   SloppyXBaby turns brain dumps into structured, voice-specific specs — so you stop sounding like a ChatGPT template and start shipping what you actually meant.
                 </p>
-                <div className="mt-8 flex flex-wrap gap-3 justify-center md:justify-start">
+                <div className="hero-entrance mt-8 flex flex-wrap gap-3 justify-center md:justify-start" data-stagger="4">
                   <a href="#scanner" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-white bg-sage hover:bg-sage-glow transition-colors no-underline active:scale-[0.98]">
                     Fix my prompt
                   </a>
@@ -276,26 +331,12 @@ export default function LandingPageManual() {
                 </div>
               </div>
 
-              <div className="reveal w-full max-w-[260px] justify-self-center" aria-hidden="true">
-                <svg viewBox="0 0 140 140" role="img" aria-label="SloppyXBaby gold-drip X mark" className="w-full h-auto overflow-visible drop-shadow-[0_20px_40px_rgba(31,77,63,0.14)]">
-                  <defs>
-                    <linearGradient id="heroGold" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#E8C96A" />
-                      <stop offset="45%" stopColor="#D4AF37" />
-                      <stop offset="100%" stopColor="#AA8A2B" />
-                    </linearGradient>
-                    <filter id="xShadow" x="-20%" y="-20%" width="140%" height="140%">
-                      <feDropShadow dx="0" dy="10" stdDeviation="12" floodColor="rgba(31,77,63,0.22)" />
-                    </filter>
-                  </defs>
-                  <g transform="translate(70,70) rotate(-6) translate(-70,-70)" filter="url(#xShadow)">
-                    <path d="M38 38 C48 48, 58 58, 78 78 C82 82, 86 86, 90 90" stroke="url(#heroGold)" strokeWidth="16" strokeLinecap="round" fill="none" />
-                    <path d="M98 38 C88 48, 78 58, 58 78 C54 82, 50 86, 46 90" stroke="url(#heroGold)" strokeWidth="10" strokeLinecap="round" fill="none" />
-                    <path d="M52 88 C48 104, 46 116, 48 122 C50 128, 56 128, 58 122 C60 116, 56 100, 56 88" fill="url(#heroGold)" />
-                    <path d="M84 94 C88 110, 90 118, 88 124 C86 128, 82 128, 80 124 C78 118, 80 104, 80 94" fill="url(#heroGold)" />
-                    <path d="M68 86 C66 100, 66 108, 68 114 C70 118, 74 118, 76 114 C78 108, 72 96, 72 86" fill="url(#heroGold)" />
-                  </g>
-                </svg>
+              <div className="hero-entrance w-full max-w-[420px] justify-self-center flex flex-col items-center" data-stagger="5" aria-hidden="true">
+                <img
+                  src="/mqxae13t-5c949214-9066-4f08-a4e2-703892b6c94e.jpg"
+                  alt="SloppyXBaby notebook with gold X mark, code printouts, and pink highlighter"
+                  className="w-full h-auto rounded-[var(--radius-core)] shadow-[var(--shadow-card)] -rotate-2"
+                />
                 <p className="mt-[18px] text-center font-[var(--font-mono)] text-sm tracking-[0.14em] uppercase text-gold">
                   Sloppy · X · Baby
                 </p>
@@ -340,18 +381,18 @@ export default function LandingPageManual() {
                       {scanError && <span className="text-sm text-pink">{scanError}</span>}
                     </div>
 
-                    {scanResult && (
+                    <div className={`scanner-result-accordion ${scanResult ? 'visible' : ''}`}>
                       <div className="mt-6 p-6 rounded-2xl bg-[rgba(0,0,0,0.25)] border border-slate-2">
                         <div className="flex items-baseline gap-3 mb-4">
-                          <span className="font-[var(--font-mono)] text-5xl font-extrabold text-pink tracking-[-0.04em]">{scanResult.score}%</span>
+                          <span className="font-[var(--font-mono)] text-5xl font-extrabold text-pink tracking-[-0.04em]">{displayScore}</span>
                           <span className="font-[var(--font-mono)] text-xs text-slate-muted uppercase tracking-[0.12em]">Bloat Risk Factor</span>
                         </div>
                         <div className="flex flex-wrap gap-2 mb-3.5">
-                          {scanResult.flags.map((f) => (
+                          {scanResult?.flags.map((f) => (
                             <span key={f} className="scanner-flag">{f}</span>
                           ))}
                         </div>
-                        <p className="text-[#cbd5e1] text-[15px] leading-relaxed">{scanResult.summary}</p>
+                        <p className="text-[#cbd5e1] text-[15px] leading-relaxed">{scanResult?.summary}</p>
                         <div className="mt-7 pt-6 border-t border-slate-2">
                           <p className="text-[#e2e8f0] text-[17px] font-semibold mb-3">Fix your context windows. Unlock the full compiler.</p>
                           <div className="flex flex-wrap gap-3">
@@ -375,10 +416,15 @@ export default function LandingPageManual() {
                           )}
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
 
                   <div className="p-6 rounded-2xl bg-[rgba(0,0,0,0.25)] border border-slate-2 font-[var(--font-mono)] text-[13px] leading-relaxed">
+                    <img
+                      src="/mqxae145-0f97ef0d-2c4a-447c-93b0-87e9b3b2721e.jpg"
+                      alt="Slop Scanner terminal interface showing token debt, context weight, and bloat factor metrics."
+                      className="w-full h-auto rounded-xl mb-[18px] border border-slate-2 shadow-[0_12px_30px_-16px_rgba(0,0,0,0.4)]"
+                    />
                     <div className="flex items-center gap-2 mb-[18px] text-slate-muted text-[11px] uppercase tracking-[0.08em]">
                       <span className="w-2 h-2 rounded-full bg-red-500" />
                       <span className="w-2 h-2 rounded-full bg-amber-500" />
@@ -387,24 +433,24 @@ export default function LandingPageManual() {
                     </div>
                     <div className="flex justify-between items-center py-2.5 border-b border-slate-2">
                       <span className="text-slate-muted">Token Debt</span>
-                      <span className="text-[#f8fafc] font-semibold">{scanResult?.debt ?? '0.42'}</span>
+                      <span className="text-[#f8fafc] font-semibold">{scanResult ? displayDebt : '0.42'}</span>
                     </div>
                     <div className="metric-bar mt-2">
-                      <div className="metric-bar-fill" style={{ width: scanResult?.barDebt ?? '42%' }} />
+                      <div className="metric-bar-fill" style={{ width: scanResult ? scanResult.barDebt : '42%' }} />
                     </div>
                     <div className="flex justify-between items-center py-2.5 border-b border-slate-2 mt-2">
                       <span className="text-slate-muted">Context Window Weight</span>
-                      <span className="text-[#f8fafc] font-semibold">{scanResult?.context ?? '23%'}</span>
+                      <span className="text-[#f8fafc] font-semibold">{scanResult ? displayContext : '23%'}</span>
                     </div>
                     <div className="metric-bar mt-2">
-                      <div className="metric-bar-fill" style={{ width: scanResult?.barContext ?? '23%' }} />
+                      <div className="metric-bar-fill" style={{ width: scanResult ? scanResult.barContext : '23%' }} />
                     </div>
                     <div className="flex justify-between items-center py-2.5 border-b border-slate-2 mt-2">
                       <span className="text-slate-muted">Bloat Calculation</span>
-                      <span className="text-[#f8fafc] font-semibold">{scanResult?.bloat ?? '1.7σ'}</span>
+                      <span className="text-[#f8fafc] font-semibold">{scanResult ? displayBloat : '1.7σ'}</span>
                     </div>
                     <div className="metric-bar mt-2">
-                      <div className="metric-bar-fill" style={{ width: scanResult?.barBloat ?? '68%' }} />
+                      <div className="metric-bar-fill" style={{ width: scanResult ? scanResult.barBloat : '68%' }} />
                     </div>
                     <div className="flex justify-between items-center py-2.5 mt-2">
                       <span className="text-slate-muted">Shield Status</span>
@@ -431,11 +477,11 @@ export default function LandingPageManual() {
                   The left is what most people paste. The right is what SloppyXBaby compiles.
                 </p>
                 <div className="grid md:grid-cols-2 gap-5 mt-7">
-                  <div className="p-6 rounded-2xl border border-slate-2 text-sm leading-relaxed bg-[rgba(255,46,125,0.08)]">
+                  <div className="stagger-child p-6 rounded-2xl border border-slate-2 text-sm leading-relaxed bg-[rgba(255,46,125,0.08)]">
                     <div className="font-[var(--font-mono)] text-[10px] tracking-[0.14em] uppercase text-pink mb-3">Standard LLM slop</div>
                     <p className="text-[#e2e8f0]">Write a landing page for my coffee brand. Make it premium but approachable. Include features and testimonials.</p>
                   </div>
-                  <div className="p-6 rounded-2xl border border-sage-glow text-sm leading-relaxed bg-[rgba(31,77,63,0.15)]">
+                  <div className="stagger-child p-6 rounded-2xl border border-sage-glow text-sm leading-relaxed bg-[rgba(31,77,63,0.15)]">
                     <div className="font-[var(--font-mono)] text-[10px] tracking-[0.14em] uppercase text-sage-glow mb-3">Compiled spec</div>
                     <pre className="m-0 whitespace-pre-wrap font-[var(--font-mono)] text-[13px] leading-relaxed text-[#e2e8f0]">
 {`ROLE: Senior brand copywriter for a single-origin coffee subscription.
@@ -474,11 +520,11 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
               <p className="text-lede mt-3 mx-auto">Your prompts, your keys, your vault. We just supply the cognitive guardrails.</p>
             </div>
             <div className="grid md:grid-cols-2 gap-5 mt-8 reveal">
-              <div className="p-8 rounded-[var(--radius-core)] bg-white/50 border border-hairline">
+              <div className="stagger-child p-8 rounded-[var(--radius-core)] bg-white/50 border border-hairline">
                 <h3 className="text-xl font-bold mb-2.5">Local-first vaults</h3>
                 <p className="text-[15px] text-muted leading-relaxed">Your context state, prompt specs, and SSOT architecture live in your browser's local storage and sync directly to your encrypted cloud vault. We never see your raw prompts.</p>
               </div>
-              <div className="p-8 rounded-[var(--radius-core)] bg-white/50 border border-hairline">
+              <div className="stagger-child p-8 rounded-[var(--radius-core)] bg-white/50 border border-hairline">
                 <h3 className="text-xl font-bold mb-2.5">Bring Your Own Key</h3>
                 <p className="text-[15px] text-muted leading-relaxed">Connect your OpenAI, Anthropic, or DeepSeek API routes. Pay wholesale token prices directly to the provider. We don't markup compute or hold your keys on our servers.</p>
               </div>
@@ -502,7 +548,7 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                 { num: '02', title: 'Compile the spec', body: 'DeepSeek-V3 / R1 reasoning routes restructure your intent into role, task, constraints, and output format.' },
                 { num: '03', title: 'Ship the result', body: 'Copy the compiled prompt into your editor, or keep iterating inside the workspace without losing context.' },
               ].map((s) => (
-                <div key={s.num} className="p-8 rounded-[var(--radius-core)] bg-surface-solid border border-hairline">
+                <div key={s.num} className="stagger-child p-8 rounded-[var(--radius-core)] bg-surface-solid border border-hairline">
                   <div className="font-[var(--font-mono)] text-[13px] text-gold tracking-[0.08em] mb-3.5">{s.num}</div>
                   <h3 className="text-xl font-bold mb-2">{s.title}</h3>
                   <p className="text-[15px] text-muted leading-relaxed">{s.body}</p>
@@ -671,6 +717,11 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                 }}
               />
               <div className="relative max-w-[820px] mx-auto">
+                <img
+                  src="/mqxae148-download.jpeg"
+                  alt="Corian Vander, founder of SloppyXBaby"
+                  className="w-[110px] h-[110px] rounded-full object-cover border-2 border-gold shadow-[0_0_0_4px_rgba(212,175,55,0.15)] mx-auto mb-6"
+                />
                 <span className="block font-serif text-[clamp(90px,11vw,150px)] leading-[0.8] text-gold opacity-30 mb-[-20px]">“</span>
                 <p className="text-[clamp(24px,3.2vw,34px)] leading-[1.32] font-medium tracking-[-0.015em]">
                   AI slop isn't a model failure. It's a context failure. I built SloppyXBaby because my AuDHD brain can imagine the whole product and forget the point in the same hour. This workspace holds the thread: externalized memory, one clear next step, and prompts that sound like me instead of a ChatGPT template.
@@ -691,11 +742,11 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 flex-wrap">
             <span className="text-sm text-muted">© {new Date().getFullYear()} SloppyXBaby. Built for distracted builders.</span>
             <nav className="flex flex-wrap gap-6" aria-label="Footer">
-              <Link to="/tactics" className="text-sm text-muted no-underline hover:text-pink transition-colors">Tactics</Link>
-              <Link to="/app" className="text-sm text-muted no-underline hover:text-pink transition-colors">Workspace</Link>
+              <a href="/prompt-compiler" className="text-sm text-muted no-underline hover:text-pink transition-colors">Prompt Compiler</a>
+              <a href="/ssot-auditor" className="text-sm text-muted no-underline hover:text-pink transition-colors">SSOT Auditor</a>
+              <a href="/vector-rag" className="text-sm text-muted no-underline hover:text-pink transition-colors">Vector RAG</a>
+              <a href="/context-builder" className="text-sm text-muted no-underline hover:text-pink transition-colors">Context Builder</a>
               <Link to="/privacy" className="text-sm text-muted no-underline hover:text-pink transition-colors">Privacy</Link>
-              <Link to="/terms" className="text-sm text-muted no-underline hover:text-pink transition-colors">Terms</Link>
-              <Link to="/cookies" className="text-sm text-muted no-underline hover:text-pink transition-colors">Cookies</Link>
             </nav>
           </div>
         </div>
