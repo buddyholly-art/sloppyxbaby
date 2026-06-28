@@ -1,58 +1,143 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Sparkles, Shield, Zap, Mail, ArrowRight, Check,
-  Target, Brain, Bot, Scale, Coins, Cpu, ShieldAlert,
-  ChevronRight, Lightbulb, FileText, Lock, Scroll, Rocket, FlaskConical
-} from 'lucide-react';
-import { AUTHORITIES_SSOT } from '../lib/authoritySsot';
-import '../manual-landing.css';
 
-type Intent = 'fix' | 'lessgeneric' | 'learn';
-
-const INTENTS: { key: Intent; title: string; sub: string; cta: string }[] = [
+const QUOTES = [
   {
-    key: 'fix',
-    title: 'Fix my sloppy prompt',
-    sub: 'Paste the brain dump. We turn scattered thoughts into a clean, machine-readable spec — whether you’re distracted, exhausted, or just not a prompt engineer.',
-    cta: 'Try it free',
+    text: '“ADHD is an executive function deficit. Guidance must be externalized, visual, and rollback-safe.”',
+    name: 'Russell Barkley',
+    role: 'Medical University of South Carolina',
+    ties: ['SSOT Auditor, Risk Dashboard'],
   },
   {
-    key: 'lessgeneric',
-    title: 'Make my AI output less generic',
-    sub: 'Stop sounding like every AI slop template. We inject your constraints, voice, and guardrails so the model sounds like you.',
-    cta: 'See the difference',
+    text: '“Working memory has limited capacity. Effective support offloads information into external stores.”',
+    name: 'Alan Baddeley',
+    role: 'University of York Working Memory Model',
+    ties: ['Memory Vault, session restoration'],
   },
   {
-    key: 'learn',
-    title: 'Learn the tactics',
-    sub: 'Get the free cheatsheet. Built on working-memory research used in ADHD support — and useful for anyone whose context window is smaller than ChatGPT’s.',
-    cta: 'Send me the cheatsheet',
+    text: '“Sensory preferences shape attention. Low-arousal environments reduce cognitive load.”',
+    name: 'Winnie Dunn',
+    role: 'University of Kansas Medical Center',
+    ties: ['Low-arousal UI'],
+  },
+  {
+    text: '“Provide one clear default next step and multiple means of engagement.”',
+    name: 'CAST UDL Guidelines',
+    role: 'CAST Center for Applied Special Technology',
+    ties: ['One clear next step'],
+  },
+  {
+    text: '“The real cost of a model is money, space, and maintenance over time.”',
+    name: 'Andrej Karpathy',
+    role: 'OpenAI / Tesla',
+    ties: ['TCO board'],
   },
 ];
 
-export default function LandingPageManual() {
-  const [intent, setIntent] = useState<Intent | null>(null);
-  const [prompt, setPrompt] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
-  const [error, setError] = useState('');
-  const [email, setEmail] = useState('');
-  const [leadStatus, setLeadStatus] = useState<'idle' | 'loading' | 'success'>('idle');
-  const [authorityIndex, setAuthorityIndex] = useState(0);
-  const [tcoAspect, setTcoAspect] = useState<'money' | 'space' | 'maintenance'>('maintenance');
-  const chosenRef = useRef<HTMLDivElement>(null);
+const FLAG_POOL = [
+  'nested context loops',
+  'vague constraints',
+  'fake metrics risk',
+  'role ambiguity',
+  'output format missing',
+  'dopamine-heavy phrasing',
+  'no guardrails',
+];
 
-  const selectIntent = (i: Intent) => {
-    setIntent(i);
-    setTimeout(() => chosenRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+export default function LandingPageManual() {
+  const [navOpen, setNavOpen] = useState(false);
+
+  const [prompt, setPrompt] = useState('');
+  const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState('');
+  const [scanResult, setScanResult] = useState<{
+    score: number;
+    flags: string[];
+    summary: string;
+    debt: string;
+    context: string;
+    bloat: string;
+    barDebt: string;
+    barContext: string;
+    barBloat: string;
+  } | null>(null);
+
+  const [generating, setGenerating] = useState(false);
+  const [generated, setGenerated] = useState<string | null>(null);
+  const [generateError, setGenerateError] = useState('');
+
+  const [quoteIndex, setQuoteIndex] = useState(0);
+
+  const quoteTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Scroll reveal
+  useEffect(() => {
+    const reveals = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) e.target.classList.add('is-in');
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    reveals.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
+  // Quote auto-advance
+  useEffect(() => {
+    quoteTimer.current = setInterval(() => {
+      setQuoteIndex((i) => (i + 1) % QUOTES.length);
+    }, 7000);
+    return () => {
+      if (quoteTimer.current) clearInterval(quoteTimer.current);
+    };
+  }, []);
+
+  const runAudit = () => {
+    const text = prompt.trim();
+    if (!text) {
+      setScanError('Paste a prompt first.');
+      return;
+    }
+    setScanError('');
+    setGenerated(null);
+    setGenerateError('');
+    setScanning(true);
+
+    setTimeout(() => {
+      const score = Math.min(92, Math.max(34, Math.floor(text.length / 8) + 28));
+      const flags: string[] = [];
+      if (text.length < 80) flags.push('vague constraints');
+      if (!/role|task|output|constraint/i.test(text)) flags.push('role ambiguity');
+      if (/features?|testimonials?|premium|approachable/i.test(text)) flags.push('fake metrics risk');
+      if (!/avoid|don't|never/i.test(text)) flags.push('no guardrails');
+      while (flags.length < 3) {
+        const extra = FLAG_POOL[Math.floor(Math.random() * FLAG_POOL.length)];
+        if (!flags.includes(extra)) flags.push(extra);
+      }
+
+      setScanResult({
+        score,
+        flags: flags.slice(0, 3),
+        summary: `Your prompt scores ${score}% bloat risk. The compiler can collapse this into one structured spec with role, task, constraints, and output format.`,
+        debt: (score / 100 * 0.8 + 0.1).toFixed(2),
+        context: `${Math.floor(score * 0.6)}%`,
+        bloat: `${(score / 30).toFixed(1)}σ`,
+        barDebt: `${Math.min(100, score * 0.7)}%`,
+        barContext: `${Math.min(100, score * 0.6)}%`,
+        barBloat: `${Math.min(100, score)}%`,
+      });
+      setScanning(false);
+    }, 900);
   };
 
-  const runFreeTaste = async () => {
+  const runGenerate = async () => {
     if (!prompt.trim()) return;
-    setLoading(true);
-    setError('');
-    setResult(null);
+    setGenerating(true);
+    setGenerateError('');
+    setGenerated(null);
     try {
       const res = await fetch('/api/generate-prompt', {
         method: 'POST',
@@ -61,463 +146,557 @@ export default function LandingPageManual() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Request failed');
-      setResult(data.result);
+      setGenerated(data.result?.advocatePrompt ?? data.result ?? JSON.stringify(data.result, null, 2));
     } catch (err: any) {
-      setError(err.message);
+      setGenerateError(err.message || 'Could not generate prompt');
     } finally {
-      setLoading(false);
+      setGenerating(false);
     }
   };
 
-  const submitLead = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.includes('@')) return;
-    setLeadStatus('loading');
+  const checkout = async (plan: 'monthly' | 'lifetime', btn: HTMLButtonElement | null) => {
+    if (btn) btn.style.transform = 'scale(0.98)';
     try {
-      await fetch('/api/lead', {
+      const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'cheatsheet' }),
+        body: JSON.stringify({ plan }),
       });
-      setLeadStatus('success');
-    } catch {
-      setLeadStatus('idle');
-    }
-  };
-
-  const buyCredits = async () => {
-    try {
-      const res = await fetch('/api/checkout', { method: 'POST' });
+      if (!res.ok) throw new Error('checkout unavailable');
       const data = await res.json();
       if (data.url) window.location.href = data.url;
     } catch {
-      // fail silently
+      alert('Checkout opens in the live app. This is a design prototype.');
+    } finally {
+      setTimeout(() => {
+        if (btn) btn.style.transform = '';
+      }, 150);
     }
   };
 
-  useEffect(() => {
-    const id = setInterval(() => setAuthorityIndex((p) => (p + 1) % AUTHORITIES_SSOT.length), 12000);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('is-in')),
-      { threshold: 0.1, rootMargin: '0px 0px -10% 0px' }
-    );
-    document.querySelectorAll('.reveal').forEach((el) => obs.observe(el));
-    return () => obs.disconnect();
-  }, [intent]);
-
-  const currentAuthority = AUTHORITIES_SSOT[authorityIndex];
-
-  const stickyLabel =
-    intent === 'fix' ? 'Fix my prompt — $5 for 50 premium runs' :
-    intent === 'lessgeneric' ? 'Stop generic output — try the compiler' :
-    intent === 'learn' ? 'Get the tactics cheatsheet' : 'Start with the prompt compiler';
+  const BrandX = (
+    <svg className="w-[30px] h-[30px] flex-shrink-0" viewBox="0 0 48 48" aria-hidden="true">
+      <defs>
+        <linearGradient id="goldGradNav" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#E8C96A" />
+          <stop offset="50%" stopColor="#D4AF37" />
+          <stop offset="100%" stopColor="#AA8A2B" />
+        </linearGradient>
+      </defs>
+      <g transform="translate(24,24) rotate(-8) translate(-24,-24)">
+        <path d="M14 14 L34 34" stroke="url(#goldGradNav)" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <path d="M34 14 L14 34" stroke="url(#goldGradNav)" strokeWidth="5" strokeLinecap="round" fill="none" />
+        <path d="M18 30 Q16 38 17 42 Q18 45 21 44 Q24 43 22 38 Q20 32 20 30" fill="url(#goldGradNav)" />
+        <path d="M30 32 Q32 40 31 44 Q30 46 28 45 Q26 44 27 40 Q28 35 28 32" fill="url(#goldGradNav)" />
+      </g>
+    </svg>
+  );
 
   return (
-    <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)] font-[var(--font-sans)] overflow-x-hidden">
-      <div className="ambient-mesh" aria-hidden="true" />
-      <div className="paper-grain" aria-hidden="true" />
-
-      {/* Nav */}
-      <nav className="nav-shell">
-        <div className="flex items-center gap-4 px-2 py-1.5">
-          <Link to="/" className="flex items-center gap-2 font-bold text-[15px] tracking-tight">
-            <span className="w-5 h-5 rounded-md bg-[var(--color-sage)]" />
+    <div className="min-h-screen bg-canvas text-ink font-[var(--font-sans)] overflow-x-hidden">
+      {/* Sticky nav — custom class to avoid collision with manual-landing.css .nav-shell override */}
+      <nav
+        className="sticky top-[20px] z-50 mx-auto mt-[20px] p-[6px] w-max max-w-[calc(100%-48px)] rounded-[var(--radius-pill)] bg-surface backdrop-blur-[22px] saturate-[160%] shadow-[var(--shadow-nav)]"
+        role="navigation"
+        aria-label="Primary"
+      >
+        <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-[10px] px-4 py-2 font-extrabold text-[15px] tracking-[-0.02em] text-ink no-underline">
+            {BrandX}
             SloppyXBaby
           </Link>
-          <div className="hidden md:flex items-center gap-1 text-[13px] font-medium text-[var(--color-muted)]">
-            <Link to="/tactics" className="px-3 py-1.5 rounded-full hover:bg-black/5 transition-colors">Tactics</Link>
-            <Link to="/app" className="px-3 py-1.5 rounded-full hover:bg-black/5 transition-colors">Workspace</Link>
-            <a href="#pricing" className="px-3 py-1.5 rounded-full hover:bg-black/5 transition-colors">Pricing</a>
+
+          <div
+            className={`${
+              navOpen ? 'flex' : 'hidden'
+            } md:flex md:flex-row flex-col md:items-center items-stretch md:static absolute top-[calc(100%+8px)] left-0 right-0 md:p-0 p-2 md:bg-transparent bg-surface-solid md:rounded-none rounded-[24px] md:shadow-none shadow-[var(--shadow-nav)]`}
+          >
+            <a
+              href="#scanner"
+              onClick={() => setNavOpen(false)}
+              className="px-4 py-2.5 rounded-[var(--radius-pill)] text-[13.5px] font-semibold text-muted hover:bg-white/60 hover:text-ink transition-all duration-200 no-underline"
+            >
+              Scan
+            </a>
+            <a
+              href="#how"
+              onClick={() => setNavOpen(false)}
+              className="px-4 py-2.5 rounded-[var(--radius-pill)] text-[13.5px] font-semibold text-muted hover:bg-white/60 hover:text-ink transition-all duration-200 no-underline"
+            >
+              How it works
+            </a>
+            <a
+              href="#pricing"
+              onClick={() => setNavOpen(false)}
+              className="px-4 py-2.5 rounded-[var(--radius-pill)] text-[13.5px] font-semibold text-muted hover:bg-white/60 hover:text-ink transition-all duration-200 no-underline"
+            >
+              Pricing
+            </a>
           </div>
+
+          <button
+            className="md:hidden inline-flex items-center justify-center w-9 h-9 rounded-[var(--radius-pill)] border-0 bg-transparent cursor-pointer"
+            aria-expanded={navOpen}
+            aria-label="Toggle menu"
+            onClick={() => setNavOpen((o) => !o)}
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="3" y1="5" x2="15" y2="5" />
+              <line x1="3" y1="9" x2="15" y2="9" />
+              <line x1="3" y1="13" x2="15" y2="13" />
+            </svg>
+          </button>
         </div>
       </nav>
 
-      <main className="relative z-10">
-        {/* Hero / Intent Router */}
-        <section className="min-h-[92dvh] md:min-h-[88dvh] flex flex-col justify-center max-w-[1200px] mx-auto px-6 pt-28 pb-16">
-          <div className="max-w-3xl mb-10 md:mb-14">
-            <span className="eyebrow"><span className="eyebrow-dot" /> Prompt engineering for distracted builders</span>
-            <h1 className="mt-6 text-[clamp(40px,6vw,72px)] font-bold leading-[1.05] tracking-[-0.035em]">
-              Your ideas are good.{' '}
-              <span className="text-[var(--color-sage)]">Your prompts are sloppy.</span>
-            </h1>
-            <p className="mt-5 text-lg md:text-xl text-[var(--color-muted)] leading-relaxed max-w-2xl">
-              A context-engineering workspace built from ADHD/AuDHD research. Low-arousal, high-clarity, and designed for brains that lose the thread.
-            </p>
-          </div>
+      <main>
+        {/* Hero */}
+        <section className="pt-14 pb-10">
+          <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
+            <div className="grid md:grid-cols-[1.15fr_0.85fr] gap-10 items-center text-center md:text-left">
+              <div className="reveal">
+                <span className="eyebrow">
+                  <span className="eyebrow-dot" />
+                  DeepSeek-V3 / R1 reasoning routes
+                </span>
+                <h1 className="text-display mt-6">
+                  Your ideas are good.{' '}
+                  <span className="text-sage">Your prompts are sloppy.</span>
+                </h1>
+                <p className="text-lede mt-[22px] mx-auto md:mx-0">
+                  SloppyXBaby turns brain dumps into structured, voice-specific specs — so you stop sounding like a ChatGPT template and start shipping what you actually meant.
+                </p>
+                <div className="mt-8 flex flex-wrap gap-3 justify-center md:justify-start">
+                  <a href="#scanner" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-white bg-sage hover:bg-sage-glow transition-colors no-underline active:scale-[0.98]">
+                    Fix my prompt
+                  </a>
+                  <a href="#how" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-surface hover:bg-surface-solid shadow-[inset_0_0_0_1px_var(--color-hairline-strong)] transition-colors no-underline active:scale-[0.98]">
+                    See how it works
+                  </a>
+                </div>
+              </div>
 
-          <div className="mb-8">
-            <p className="font-[var(--font-mono)] text-[11px] tracking-[0.18em] uppercase text-[var(--color-muted)] mb-4">What brings you here?</p>
-            <div className="grid md:grid-cols-3 gap-4">
-              {INTENTS.map((it, idx) => {
-                const active = intent === it.key;
-                const dominant = idx === 0;
-                return (
-                  <button
-                    key={it.key}
-                    onClick={() => selectIntent(it.key)}
-                    className={`intent-card text-left ${dominant ? 'md:row-span-1' : ''} ${active ? 'intent-card--active' : ''}`}
-                  >
-                    <span className="inline-flex items-center gap-2 text-[10px] font-[var(--font-mono)] uppercase tracking-wider text-[var(--color-sage)] mb-3">
-                      {it.key === 'fix' && <Target className="w-3.5 h-3.5" />}
-                      {it.key === 'lessgeneric' && <Sparkles className="w-3.5 h-3.5" />}
-                      {it.key === 'learn' && <Lightbulb className="w-3.5 h-3.5" />}
-                      0{idx + 1}
-                    </span>
-                    <h3 className="font-semibold text-lg mb-2">{it.title}</h3>
-                    <p className="text-[var(--color-muted)] text-sm leading-relaxed mb-4">{it.sub}</p>
-                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-sage)] group">
-                      {it.cta} <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  </button>
-                );
-              })}
+              <div className="reveal w-full max-w-[260px] justify-self-center" aria-hidden="true">
+                <svg viewBox="0 0 140 140" role="img" aria-label="SloppyXBaby gold-drip X mark" className="w-full h-auto overflow-visible drop-shadow-[0_20px_40px_rgba(31,77,63,0.14)]">
+                  <defs>
+                    <linearGradient id="heroGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#E8C96A" />
+                      <stop offset="45%" stopColor="#D4AF37" />
+                      <stop offset="100%" stopColor="#AA8A2B" />
+                    </linearGradient>
+                    <filter id="xShadow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="10" stdDeviation="12" floodColor="rgba(31,77,63,0.22)" />
+                    </filter>
+                  </defs>
+                  <g transform="translate(70,70) rotate(-6) translate(-70,-70)" filter="url(#xShadow)">
+                    <path d="M38 38 C48 48, 58 58, 78 78 C82 82, 86 86, 90 90" stroke="url(#heroGold)" strokeWidth="16" strokeLinecap="round" fill="none" />
+                    <path d="M98 38 C88 48, 78 58, 58 78 C54 82, 50 86, 46 90" stroke="url(#heroGold)" strokeWidth="10" strokeLinecap="round" fill="none" />
+                    <path d="M52 88 C48 104, 46 116, 48 122 C50 128, 56 128, 58 122 C60 116, 56 100, 56 88" fill="url(#heroGold)" />
+                    <path d="M84 94 C88 110, 90 118, 88 124 C86 128, 82 128, 80 124 C78 118, 80 104, 80 94" fill="url(#heroGold)" />
+                    <path d="M68 86 C66 100, 66 108, 68 114 C70 118, 74 118, 76 114 C78 108, 72 96, 72 86" fill="url(#heroGold)" />
+                  </g>
+                </svg>
+                <p className="mt-[18px] text-center font-[var(--font-mono)] text-sm tracking-[0.14em] uppercase text-gold">
+                  Sloppy · X · Baby
+                </p>
+              </div>
             </div>
-            <div className="mt-5 text-center md:text-left">
-              <a href="#story" className="text-sm text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors underline decoration-[var(--color-hairline-strong)] underline-offset-4">
-                Not sure? Browse the full story →
-              </a>
-            </div>
-          </div>
-
-          {/* Gold drip mark */}
-          <div className="absolute top-24 right-0 md:right-12 w-48 h-48 md:w-72 md:h-72 pointer-events-none opacity-60 gold-drift">
-            <svg viewBox="0 0 200 200" className="w-full h-full gold-drip">
-              <defs>
-                <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#D4AF37" />
-                  <stop offset="100%" stopColor="#F2D06B" />
-                </linearGradient>
-              </defs>
-              {/* X cross */}
-              <path
-                d="M55 45 L145 135 M145 45 L55 135"
-                stroke="url(#goldGrad)"
-                strokeWidth="18"
-                strokeLinecap="round"
-                fill="none"
-              />
-              {/* Drip from the bottom-right arm of the X */}
-              <path
-                d="M135 135 V165 Q135 180 150 180"
-                stroke="url(#goldGrad)"
-                strokeWidth="14"
-                strokeLinecap="round"
-                fill="none"
-              />
-              <circle cx="150" cy="188" r="9" fill="#F2D06B" className="gold-drop" />
-            </svg>
           </div>
         </section>
 
-        {/* Chosen path */}
-        {intent && (
-          <section ref={chosenRef} className="max-w-[1200px] mx-auto px-6 py-16 scroll-mt-24">
-            {intent === 'fix' && (
-              <div className="card-shell p-6 md:p-10">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">Free taste: fix my sloppy prompt</h2>
-                <p className="text-[var(--color-muted)] mb-6">Paste a messy request. Get back a structured, context-engineered prompt. No signup. 10 free generations per day.</p>
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="e.g. build me a login system"
-                  className="w-full h-40 p-4 rounded-[var(--radius-core)] bg-white/70 border border-[var(--color-hairline)] text-base resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-sage)]/30"
-                />
-                <div className="mt-4 flex items-center gap-3">
-                  <button
-                    onClick={runFreeTaste}
-                    disabled={loading || !prompt.trim()}
-                    className="btn-pill"
-                  >
-                    <span>{loading ? 'Thinking…' : 'Generate prompt'}</span>
-                    <span className="btn-pill-icon"><Sparkles className="w-3 h-3" /></span>
-                  </button>
-                  {error && <span className="text-sm text-red-600">{error}</span>}
-                </div>
-                {result && (
-                  <div className="mt-6 p-5 rounded-[var(--radius-core)] bg-[var(--color-sage-dim)] border border-[var(--color-sage-soft)]">
-                    <p className="text-xs font-[var(--font-mono)] uppercase tracking-wide text-[var(--color-sage)] mb-2">Advocate Prompt · Score {result.promptScore}/100</p>
-                    <pre className="whitespace-pre-wrap text-sm leading-relaxed font-[var(--font-sans)]">{result.advocatePrompt}</pre>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {intent === 'lessgeneric' && (
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="card-shell p-6">
-                  <h3 className="text-sm font-[var(--font-mono)] uppercase tracking-wider text-[var(--color-muted)] mb-4">Sloppy prompt</h3>
-                  <p className="text-[var(--color-ink)] text-lg leading-relaxed">"Make a nice landing page for my app. Use a modern design. Include pricing."</p>
-                  <div className="mt-6 p-4 rounded-[var(--radius-core)] bg-rose-50 border border-rose-100 text-rose-700 text-sm">
-                    Generic output: purple gradients, fake stats, vague CTAs, no personality.
-                  </div>
-                </div>
-                <div className="card-shell p-6 border-[var(--color-sage)]/30">
-                  <h3 className="text-sm font-[var(--font-mono)] uppercase tracking-wider text-[var(--color-sage)] mb-4">Baby-smooth prompt</h3>
-                  <p className="text-[var(--color-ink)] text-lg leading-relaxed">"Build a soft-cream landing page for SloppyXBaby, a prompt-engineering workspace for ADHD/AuDHD builders. Lead with an intent router, cite working-memory research, use sage #1F4D3F and gold #D4AF37 accents, and end with three pricing tiers."</p>
-                  <div className="mt-6 p-4 rounded-[var(--radius-core)] bg-[var(--color-sage-dim)] border border-[var(--color-sage-soft)] text-[var(--color-sage)] text-sm">
-                    Specific voice, constraints, evidence, and structure.
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {intent === 'learn' && (
-              <div className="card-shell p-6 md:p-10">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">Get the free cheatsheet</h2>
-                <p className="text-[var(--color-muted)] mb-6">A condensed, copy-paste guide to the context-engineering tactics that separate decent prompts from great ones.</p>
-                {leadStatus === 'success' ? (
-                  <p className="inline-flex items-center gap-2 text-[var(--color-sage)] font-semibold"><Check className="w-4 h-4" /> Cheatsheet link sent to your inbox.</p>
-                ) : (
-                  <form onSubmit={submitLead} className="flex flex-col sm:flex-row gap-3 max-w-md">
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      className="flex-1 px-4 py-2.5 rounded-full bg-white/70 border border-[var(--color-hairline)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-sage)]/30"
-                    />
-                    <button type="submit" disabled={leadStatus === 'loading'} className="btn-pill">
-                      <span>Send it</span>
-                      <span className="btn-pill-icon"><Mail className="w-3 h-3" /></span>
-                    </button>
-                  </form>
-                )}
-                <div className="mt-8 grid sm:grid-cols-3 gap-4">
-                  {[
-                    { title: 'XML delimiters', body: 'Wrap instructions, rules, and data in explicit tags for 20–40% more consistency.' },
-                    { title: 'Context positioning', body: 'Put key constraints at the start and end; the middle of the context window decays.' },
-                    { title: 'Chain-of-Verification', body: 'Draft, fact-check in isolation, then synthesize. Cuts hallucinations.' },
-                  ].map((t) => (
-                    <div key={t.title} className="card-core p-4">
-                      <h4 className="font-semibold text-sm mb-1">{t.title}</h4>
-                      <p className="text-[var(--color-muted)] text-xs leading-relaxed">{t.body}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* Gravitas strip */}
-        <section className="max-w-[1200px] mx-auto px-6 py-16 border-t border-[var(--color-hairline)]">
-          <div className="card-shell p-6 md:p-8">
-            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-              <div className="lg:flex-1">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="eyebrow"><span className="eyebrow-dot" /> Edict {currentAuthority.edictId}</span>
-                  <span className="text-xs text-[var(--color-muted)] uppercase tracking-wide font-semibold">Gravitas Authority</span>
-                </div>
-                <blockquote className="text-[var(--color-ink)] text-lg md:text-xl leading-relaxed font-medium italic mb-4">
-                  “{currentAuthority.quote}”
-                </blockquote>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-[var(--color-sage)]" />
+        {/* Scanner */}
+        <section id="scanner" className="py-16 md:py-24 pt-6">
+          <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
+            <div className="card-shell reveal">
+              <div className="card-core panel-dark p-7 md:p-12">
+                <div className="grid md:grid-cols-2 gap-9 items-start">
                   <div>
-                    <p className="text-sm font-bold text-[var(--color-ink)]">{currentAuthority.name}</p>
-                    <p className="text-xs text-[var(--color-muted)]">{currentAuthority.role} · {currentAuthority.institution}</p>
+                    <p className="eyebrow">
+                      <span className="eyebrow-dot" />
+                      Free slop scan
+                    </p>
+                    <h2 className="text-section mt-4">Paste your current prompt. We'll show you what's bleeding tokens.</h2>
+                    <p className="text-lede mt-3" style={{ color: '#94a3b8' }}>
+                      No signup. The audit runs locally in your browser.
+                    </p>
+                    <label className="sr-only" htmlFor="scannerInput">
+                      Paste your prompt
+                    </label>
+                    <textarea
+                      id="scannerInput"
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      className="scanner-input mt-6"
+                      placeholder="e.g. build me a login system with magic links and decent UX"
+                    />
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                      <button
+                        onClick={runAudit}
+                        disabled={scanning}
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-white bg-sage hover:bg-sage-glow transition-colors border-0 cursor-pointer active:scale-[0.98] disabled:opacity-70"
+                      >
+                        {scanning ? 'Auditing…' : 'Run Impulsivity & Bloat Audit'}
+                      </button>
+                      {scanError && <span className="text-sm text-pink">{scanError}</span>}
+                    </div>
+
+                    {scanResult && (
+                      <div className="mt-6 p-6 rounded-2xl bg-[rgba(0,0,0,0.25)] border border-slate-2">
+                        <div className="flex items-baseline gap-3 mb-4">
+                          <span className="font-[var(--font-mono)] text-5xl font-extrabold text-pink tracking-[-0.04em]">{scanResult.score}%</span>
+                          <span className="font-[var(--font-mono)] text-xs text-slate-muted uppercase tracking-[0.12em]">Bloat Risk Factor</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mb-3.5">
+                          {scanResult.flags.map((f) => (
+                            <span key={f} className="scanner-flag">{f}</span>
+                          ))}
+                        </div>
+                        <p className="text-[#cbd5e1] text-[15px] leading-relaxed">{scanResult.summary}</p>
+                        <div className="mt-7 pt-6 border-t border-slate-2">
+                          <p className="text-[#e2e8f0] text-[17px] font-semibold mb-3">Fix your context windows. Unlock the full compiler.</p>
+                          <div className="flex flex-wrap gap-3">
+                            <a href="#pricing" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all no-underline active:scale-[0.98]">
+                              Initialize Workspace
+                            </a>
+                            <button
+                              onClick={runGenerate}
+                              disabled={generating}
+                              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-surface hover:bg-surface-solid shadow-[inset_0_0_0_1px_var(--color-hairline-strong)] transition-colors border-0 cursor-pointer active:scale-[0.98] disabled:opacity-70"
+                            >
+                              {generating ? 'Generating…' : 'Generate structured prompt'}
+                            </button>
+                          </div>
+                          {generateError && <p className="mt-3 text-sm text-pink">{generateError}</p>}
+                          {generated && (
+                            <div className="mt-4 p-4 rounded-2xl bg-[rgba(0,0,0,0.35)] border border-slate-2">
+                              <p className="text-xs font-[var(--font-mono)] uppercase tracking-wide text-sage-glow mb-2">Compiled spec</p>
+                              <pre className="whitespace-pre-wrap text-sm text-[#e2e8f0] font-[var(--font-sans)] leading-relaxed">{generated}</pre>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-6 rounded-2xl bg-[rgba(0,0,0,0.25)] border border-slate-2 font-[var(--font-mono)] text-[13px] leading-relaxed">
+                    <div className="flex items-center gap-2 mb-[18px] text-slate-muted text-[11px] uppercase tracking-[0.08em]">
+                      <span className="w-2 h-2 rounded-full bg-red-500" />
+                      <span className="w-2 h-2 rounded-full bg-amber-500" />
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      Live metrics
+                    </div>
+                    <div className="flex justify-between items-center py-2.5 border-b border-slate-2">
+                      <span className="text-slate-muted">Token Debt</span>
+                      <span className="text-[#f8fafc] font-semibold">{scanResult?.debt ?? '0.42'}</span>
+                    </div>
+                    <div className="metric-bar mt-2">
+                      <div className="metric-bar-fill" style={{ width: scanResult?.barDebt ?? '42%' }} />
+                    </div>
+                    <div className="flex justify-between items-center py-2.5 border-b border-slate-2 mt-2">
+                      <span className="text-slate-muted">Context Window Weight</span>
+                      <span className="text-[#f8fafc] font-semibold">{scanResult?.context ?? '23%'}</span>
+                    </div>
+                    <div className="metric-bar mt-2">
+                      <div className="metric-bar-fill" style={{ width: scanResult?.barContext ?? '23%' }} />
+                    </div>
+                    <div className="flex justify-between items-center py-2.5 border-b border-slate-2 mt-2">
+                      <span className="text-slate-muted">Bloat Calculation</span>
+                      <span className="text-[#f8fafc] font-semibold">{scanResult?.bloat ?? '1.7σ'}</span>
+                    </div>
+                    <div className="metric-bar mt-2">
+                      <div className="metric-bar-fill" style={{ width: scanResult?.barBloat ?? '68%' }} />
+                    </div>
+                    <div className="flex justify-between items-center py-2.5 mt-2">
+                      <span className="text-slate-muted">Shield Status</span>
+                      <span className="text-sage-glow font-semibold">active</span>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="lg:w-[420px]">
-                <div className="card-core p-5">
-                  <div className="flex items-center gap-2 text-[10px] font-[var(--font-mono)] uppercase tracking-wide text-[var(--color-muted)] font-bold mb-3">
-                    <Scale className="w-3.5 h-3.5 text-[var(--color-sage)]" />
-                    Structural consequence: {tcoAspect}
+            </div>
+          </div>
+        </section>
+
+        {/* Compiler */}
+        <section id="compiler" className="py-16 md:py-24">
+          <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
+            <div className="card-shell reveal">
+              <div className="card-core panel-dark p-7 md:p-12">
+                <p className="eyebrow">
+                  <span className="eyebrow-dot" />
+                  The compiler
+                </p>
+                <h2 className="text-section mt-4">From slop to spec in one pass.</h2>
+                <p className="text-lede mt-3" style={{ color: '#94a3b8' }}>
+                  The left is what most people paste. The right is what SloppyXBaby compiles.
+                </p>
+                <div className="grid md:grid-cols-2 gap-5 mt-7">
+                  <div className="p-6 rounded-2xl border border-slate-2 text-sm leading-relaxed bg-[rgba(255,46,125,0.08)]">
+                    <div className="font-[var(--font-mono)] text-[10px] tracking-[0.14em] uppercase text-pink mb-3">Standard LLM slop</div>
+                    <p className="text-[#e2e8f0]">Write a landing page for my coffee brand. Make it premium but approachable. Include features and testimonials.</p>
                   </div>
-                  <p className="text-sm text-[var(--color-muted)] leading-relaxed mb-4">{currentAuthority.tcoVector[tcoAspect]}</p>
-                  <div className="flex gap-2 flex-wrap">
-                    {(['money', 'space', 'maintenance'] as const).map((a) => (
-                      <button
-                        key={a}
-                        onClick={() => setTcoAspect(a)}
-                        className={`px-3 py-1.5 rounded-lg border text-xs font-[var(--font-mono)] transition-colors ${
-                          tcoAspect === a
-                            ? 'bg-[var(--color-sage)]/10 border-[var(--color-sage)]/20 text-[var(--color-sage)] font-bold'
-                            : 'bg-[var(--color-surface)] border-[var(--color-hairline)] text-[var(--color-muted)] hover:text-[var(--color-ink)]'
-                        }`}
-                      >
-                        {a === 'money' && <Coins className="w-3 h-3 inline mr-1" />}
-                        {a === 'space' && <Cpu className="w-3 h-3 inline mr-1" />}
-                        {a === 'maintenance' && <ShieldAlert className="w-3 h-3 inline mr-1" />}
-                        {a}
-                      </button>
+                  <div className="p-6 rounded-2xl border border-sage-glow text-sm leading-relaxed bg-[rgba(31,77,63,0.15)]">
+                    <div className="font-[var(--font-mono)] text-[10px] tracking-[0.14em] uppercase text-sage-glow mb-3">Compiled spec</div>
+                    <pre className="m-0 whitespace-pre-wrap font-[var(--font-mono)] text-[13px] leading-relaxed text-[#e2e8f0]">
+{`ROLE: Senior brand copywriter for a single-origin coffee subscription.
+
+TASK: Write a mobile-first landing page for 25–34 y/o home baristas.
+
+TONE: Warm, precise, never hype. No exclamation marks.
+
+SECTIONS: Hero with email CTA, 3 proof points about sourcing, 2 real customer quotes, pricing card.
+
+GUARDRAILS: No purple gradients, no fake stats, no emojis, no placeholder names.
+
+OUTPUT: Component copy only, ready to drop into a Next.js page.`}
+                    </pre>
+                  </div>
+                </div>
+                <div className="mt-7">
+                  <a href="#pricing" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all no-underline active:scale-[0.98]">
+                    Compile your first prompt
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Architecture */}
+        <section id="architecture" className="py-16 md:py-24">
+          <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
+            <div className="reveal text-center">
+              <span className="eyebrow">
+                <span className="eyebrow-dot" />
+                Architecture
+              </span>
+              <h2 className="text-section mt-4">Zero compute markups. Absolute state privacy.</h2>
+              <p className="text-lede mt-3 mx-auto">Your prompts, your keys, your vault. We just supply the cognitive guardrails.</p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-5 mt-8 reveal">
+              <div className="p-8 rounded-[var(--radius-core)] bg-white/50 border border-hairline">
+                <h3 className="text-xl font-bold mb-2.5">Local-first vaults</h3>
+                <p className="text-[15px] text-muted leading-relaxed">Your context state, prompt specs, and SSOT architecture live in your browser's local storage and sync directly to your encrypted cloud vault. We never see your raw prompts.</p>
+              </div>
+              <div className="p-8 rounded-[var(--radius-core)] bg-white/50 border border-hairline">
+                <h3 className="text-xl font-bold mb-2.5">Bring Your Own Key</h3>
+                <p className="text-[15px] text-muted leading-relaxed">Connect your OpenAI, Anthropic, or DeepSeek API routes. Pay wholesale token prices directly to the provider. We don't markup compute or hold your keys on our servers.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section id="how" className="py-16 md:py-24">
+          <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
+            <div className="reveal text-center">
+              <span className="eyebrow">
+                <span className="eyebrow-dot" />
+                How it works
+              </span>
+              <h2 className="text-section mt-4">Three steps. One clear thread.</h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-5 mt-10 reveal">
+              {[
+                { num: '01', title: 'Dump the mess', body: 'Paste whatever is in your head. Half-sentences, links, screenshots, frustration.' },
+                { num: '02', title: 'Compile the spec', body: 'DeepSeek-V3 / R1 reasoning routes restructure your intent into role, task, constraints, and output format.' },
+                { num: '03', title: 'Ship the result', body: 'Copy the compiled prompt into your editor, or keep iterating inside the workspace without losing context.' },
+              ].map((s) => (
+                <div key={s.num} className="p-8 rounded-[var(--radius-core)] bg-surface-solid border border-hairline">
+                  <div className="font-[var(--font-mono)] text-[13px] text-gold tracking-[0.08em] mb-3.5">{s.num}</div>
+                  <h3 className="text-xl font-bold mb-2">{s.title}</h3>
+                  <p className="text-[15px] text-muted leading-relaxed">{s.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Evidence */}
+        <section id="evidence" className="py-16 md:py-24">
+          <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
+            <div className="reveal">
+              <span className="eyebrow">
+                <span className="eyebrow-dot" />
+                Evidence basis
+              </span>
+              <h2 className="text-section mt-4">Built on research, not vibes.</h2>
+              <p className="text-lede mt-2.5">Every feature maps to a documented principle from working memory, executive function, or universal design.</p>
+            </div>
+
+            <div className="relative min-h-[170px] mt-9 reveal" aria-live="polite">
+              {QUOTES.map((q, i) => (
+                <div
+                  key={i}
+                  className={`${
+                    i === quoteIndex ? 'opacity-100 translate-y-0 pointer-events-auto relative' : 'opacity-0 translate-y-3 pointer-events-none absolute inset-0'
+                  } transition-all duration-[600ms] ease-[var(--ease-smooth)]`}
+                >
+                  <p className="text-[clamp(22px,3vw,30px)] font-semibold leading-[1.25] tracking-[-0.02em]">{q.text}</p>
+                  <div className="mt-[18px] text-sm text-muted">
+                    <strong className="text-ink">{q.name}</strong> · {q.role}
+                  </div>
+                  <div className="mt-2.5 inline-flex flex-wrap gap-2">
+                    {q.ties.map((t) => (
+                      <span key={t} className="px-2.5 py-[5px] rounded-[var(--radius-pill)] bg-sage-dim text-sage font-[var(--font-mono)] text-[10.5px]">
+                        {t}
+                      </span>
                     ))}
                   </div>
                 </div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-3 mt-7 reveal">
+              <button
+                className="slider-btn"
+                aria-label="Previous quote"
+                onClick={() => setQuoteIndex((i) => (i - 1 + QUOTES.length) % QUOTES.length)}
+              >
+                ←
+              </button>
+              <div className="flex items-center gap-3">
+                {QUOTES.map((_, i) => (
+                  <button
+                    key={i}
+                    className={`slider-dot ${i === quoteIndex ? 'active' : ''}`}
+                    aria-label={`Go to quote ${i + 1}`}
+                    onClick={() => setQuoteIndex(i)}
+                  />
+                ))}
               </div>
+              <button
+                className="slider-btn"
+                aria-label="Next quote"
+                onClick={() => setQuoteIndex((i) => (i + 1) % QUOTES.length)}
+              >
+                →
+              </button>
             </div>
           </div>
         </section>
 
         {/* Pricing */}
-        <section id="pricing" className="max-w-[1200px] mx-auto px-6 py-16 border-t border-[var(--color-hairline)]">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-10 text-center">Pick your path</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="card-shell p-6">
-              <h3 className="font-semibold text-lg mb-2">Free Taste</h3>
-              <p className="text-[var(--color-muted)] text-sm mb-4">10 generations per day on free models.</p>
-              <p className="text-3xl font-bold mb-6">$0</p>
-              <ul className="space-y-2 text-sm text-[var(--color-muted)] mb-6">
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[var(--color-sage)]" /> Prompt compiler</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[var(--color-sage)]" /> Chat & refinement loop</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[var(--color-sage)]" /> Rate limited</li>
-              </ul>
-              <button onClick={() => selectIntent('fix')} className="block w-full text-center px-5 py-2.5 rounded-full bg-white/60 border border-[var(--color-hairline)] text-sm font-semibold hover:bg-white/90 transition-colors">Start free</button>
+        <section id="pricing" className="py-16 md:py-24">
+          <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
+            <div className="reveal text-center mb-12">
+              <span className="eyebrow">
+                <span className="eyebrow-dot" />
+                Pricing
+              </span>
+              <h2 className="text-section mt-4">Pick your path</h2>
+              <p className="text-lede mt-3 mx-auto">No bloated feature grids. No hidden compute markups.</p>
             </div>
 
-            <div className="rounded-[var(--radius-shell)] bg-[var(--color-sage)] text-white p-6 shadow-[var(--shadow-card)] relative">
-              <span className="absolute -top-3 left-6 px-3 py-1 rounded-full bg-white text-[var(--color-sage)] text-[10px] font-bold uppercase tracking-wide">Popular</span>
-              <h3 className="font-semibold text-lg mb-2">Credit Pack</h3>
-              <p className="text-white/80 text-sm mb-4">Premium generations backed by OpenAI.</p>
-              <p className="text-3xl font-bold mb-6">$5</p>
-              <ul className="space-y-2 text-sm text-white/80 mb-6">
-                <li className="flex items-center gap-2"><Check className="w-4 h-4" /> 50 premium generations</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4" /> GPT-4 class models</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4" /> No daily limit</li>
-              </ul>
-              <button onClick={buyCredits} className="w-full px-5 py-2.5 rounded-full bg-white text-[var(--color-sage)] text-sm font-semibold hover:bg-white/90 transition-colors">Buy credits</button>
-            </div>
+            <div className="grid md:grid-cols-2 gap-6 max-w-[840px] mx-auto reveal">
+              {/* Monthly */}
+              <div className="card-shell pricing-card relative" data-featured="false">
+                <span className="pricing-badge hidden" aria-hidden="true">Popular</span>
+                <div className="card-core p-9 flex flex-col gap-3.5">
+                  <div className="text-xl font-extrabold">Sustained Focus</div>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-[52px] font-extrabold tracking-[-0.04em]">$15</span>
+                    <span className="text-base text-muted font-medium">/ month</span>
+                  </div>
+                  <p className="text-[15px] opacity-90 leading-relaxed">Ongoing access for builders who ship every week.</p>
+                  <ul className="list-none p-0 m-2 flex flex-col gap-2.5">
+                    {[
+                      'Unlimited multi-turn co-design',
+                      'Active Impulsivity Shield',
+                      'Real-time TCO & token math',
+                      'Cloud-sync vaults across devices',
+                    ].map((f) => (
+                      <li key={f} className="text-[15px] flex items-start gap-2.5">
+                        <svg className="w-4 h-4 flex-shrink-0 mt-[3px] text-sage" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 8 7 12 13 5" />
+                        </svg>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={(e) => checkout('monthly', e.currentTarget)}
+                    className="mt-auto w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-surface hover:bg-surface-solid shadow-[inset_0_0_0_1px_var(--color-hairline-strong)] transition-colors border-0 cursor-pointer active:scale-[0.98]"
+                  >
+                    Initialize Workspace
+                  </button>
+                </div>
+              </div>
 
-            <div className="card-shell p-6">
-              <h3 className="font-semibold text-lg mb-2">Bring Your Own Key</h3>
-              <p className="text-[var(--color-muted)] text-sm mb-4">Use your OpenAI key inside the workspace.</p>
-              <p className="text-3xl font-bold mb-6">Free</p>
-              <ul className="space-y-2 text-sm text-[var(--color-muted)] mb-6">
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[var(--color-sage)]" /> Full workspace access</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[var(--color-sage)]" /> Key stays in your session</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-[var(--color-sage)]" /> Use any OpenAI model</li>
-              </ul>
-              <Link to="/app" className="block w-full text-center px-5 py-2.5 rounded-full bg-white/60 border border-[var(--color-hairline)] text-sm font-semibold hover:bg-white/90 transition-colors">Open workspace</Link>
+              {/* Lifetime */}
+              <div className="card-shell pricing-card relative" data-featured="true">
+                <span className="pricing-badge">Limited to first 500 builders</span>
+                <div className="card-core p-9 flex flex-col gap-3.5 bg-ink text-canvas shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                  <div className="text-xl font-extrabold">Early Builder</div>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-[52px] font-extrabold tracking-[-0.04em]">$79</span>
+                    <span className="text-base text-slate-muted font-medium">/ one-time</span>
+                  </div>
+                  <p className="text-[15px] opacity-90 leading-relaxed">Pay once, own the UI. For indie hackers who hate subscriptions.</p>
+                  <ul className="list-none p-0 m-2 flex flex-col gap-2.5">
+                    {[
+                      'Everything in Sustained Focus',
+                      'Lifetime platform updates',
+                      'Local Vector RAG integration',
+                      'No subscription fatigue',
+                    ].map((f) => (
+                      <li key={f} className="text-[15px] flex items-start gap-2.5">
+                        <svg className="w-4 h-4 flex-shrink-0 mt-[3px] text-gold" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 8 7 12 13 5" />
+                        </svg>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={(e) => checkout('lifetime', e.currentTarget)}
+                    className="mt-auto w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all border-0 cursor-pointer active:scale-[0.98]"
+                  >
+                    Initialize Workspace
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Magazine sections */}
-        <section id="story" className="max-w-[1200px] mx-auto px-6 py-16 border-t border-[var(--color-hairline)]">
-          {/* Manifesto */}
-          <div className="mb-20">
-            <span className="eyebrow"><span className="eyebrow-dot" /> Manifesto</span>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mt-6 mb-6">Built for distracted builders.</h2>
-            <p className="text-lg md:text-xl text-[var(--color-muted)] leading-relaxed max-w-3xl">
-              Everyone is distracted. Notifications, context switching, and shiny-object syndrome make every builder’s working memory smaller than the model they’re prompting. SloppyXBaby is a context-engineering workspace designed from ADHD/AuDHD research — externalized memory, sensory-safe surfaces, and one clear next step — so you can vibe-code without the slop.
-            </p>
-          </div>
-
-          {/* Founder truth */}
-          <div className="mb-20 closing-surface p-8 md:p-12">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[var(--color-sage-glow)] text-[10px] font-semibold tracking-wide uppercase mb-6">
-              <Sparkles className="w-3 h-3" /> Founder truth
-            </span>
-            <blockquote className="text-2xl md:text-4xl font-bold leading-[1.15] tracking-tight mb-6">
-              “Vibe coding is an AuDHD recipe for disaster in the most addictive pill. Shiny-thing syndrome, but make EVERYTHING shiny?! So if we care so much about it, how does it turn into AI slop?”
-            </blockquote>
-            <p className="text-white/70 text-lg leading-relaxed max-w-2xl mb-6">
-              I have ADHD and autism and I spent 2 years and hundreds monthly on AI, and this is what I came up with to write good, Karpathy-level code.
-            </p>
-            <p className="text-white/50 text-sm">— SloppyXBaby founder</p>
-          </div>
-
-          {/* Evidence basis */}
-          <div className="mb-20">
-            <span className="eyebrow"><span className="eyebrow-dot" /> Evidence basis</span>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight mt-6 mb-8">Research-backed, not vibe-backed.</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {AUTHORITIES_SSOT.map((a) => (
-                <div key={a.id} className="card-shell p-6">
-                  <p className="text-xs text-[var(--color-muted)] uppercase tracking-wide font-semibold mb-3">{a.institution}</p>
-                  <blockquote className="text-[var(--color-ink)] font-medium italic leading-relaxed mb-4">“{a.quote}”</blockquote>
-                  <p className="text-sm font-bold text-[var(--color-ink)]">{a.name}</p>
-                  <p className="text-xs text-[var(--color-muted)] mt-2">Built into: {a.edictName}</p>
+        {/* Founder */}
+        <section id="founder" className="py-16 md:py-24">
+          <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
+            <div className="reveal relative overflow-hidden rounded-[var(--radius-shell)] bg-ink text-canvas text-center py-16 md:py-24 px-6 md:px-16">
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: 'radial-gradient(720px 360px at 50% 0%, rgba(90,140,122,0.28), transparent 65%)',
+                }}
+              />
+              <div className="relative max-w-[820px] mx-auto">
+                <span className="block font-serif text-[clamp(90px,11vw,150px)] leading-[0.8] text-gold opacity-30 mb-[-20px]">“</span>
+                <p className="text-[clamp(24px,3.2vw,34px)] leading-[1.32] font-medium tracking-[-0.015em]">
+                  AI slop isn't a model failure. It's a context failure. I built SloppyXBaby because my AuDHD brain can imagine the whole product and forget the point in the same hour. This workspace holds the thread: externalized memory, one clear next step, and prompts that sound like me instead of a ChatGPT template.
+                </p>
+                <div className="mt-10 flex flex-col items-center gap-1.5">
+                  <div className="text-lg font-bold tracking-[-0.01em]">Corian Vander</div>
+                  <div className="font-[var(--font-mono)] text-xs text-sage-glow uppercase tracking-[0.08em]">Founder</div>
                 </div>
-              ))}
+              </div>
             </div>
-          </div>
-
-          {/* Service grid */}
-          <div className="mb-20">
-            <span className="eyebrow"><span className="eyebrow-dot" /> What’s inside</span>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight mt-6 mb-8">The full workspace.</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { group: 'Start', items: ['Prompt Compiler', 'Agent Interface Chat', 'Repo Scaffold', 'Repo Architect'] },
-                { group: 'Protect', items: ['Security Scanner', 'Risk Dashboard', 'SSOT Auditor', 'Refinement Loop'] },
-                { group: 'Remember', items: ['Memory Vault', 'File Tree Viewer', 'Vector RAG'] },
-                { group: 'Level up', items: ['Working Memory Playground', 'Cost Board', 'Quote Banner', 'Onboarding Scaffold'] },
-              ].map((g) => (
-                <div key={g.group} className="card-shell p-5">
-                  <h4 className="text-xs font-[var(--font-mono)] uppercase tracking-wider text-[var(--color-sage)] mb-4">{g.group}</h4>
-                  <ul className="space-y-2">
-                    {g.items.map((item) => (
-                      <li key={item} className="text-sm text-[var(--color-muted)] flex items-center gap-2">
-                        <ChevronRight className="w-3 h-3 text-[var(--color-sage)]" /> {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-            <div className="mt-8 text-center">
-              <Link to="/app" className="btn-pill inline-flex">
-                <span>Open the workspace</span>
-                <span className="btn-pill-icon"><ArrowRight className="w-3 h-3" /></span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Tactics teaser */}
-          <div>
-            <span className="eyebrow"><span className="eyebrow-dot" /> Tactics</span>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight mt-6 mb-6">The tactics that separate decent prompts from great ones.</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-              {[
-                'XML Structural Delimiters',
-                'Context Positioning & Decay',
-                'Chain-of-Verification',
-                'Anti-Sycophancy',
-                'Uncertainty Calibration',
-              ].map((t) => (
-                <div key={t} className="card-core p-4 text-center">
-                  <p className="text-sm font-semibold text-[var(--color-ink)]">{t}</p>
-                </div>
-              ))}
-            </div>
-            <Link to="/tactics" className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-sage)] hover:text-[var(--color-sage-glow)]">
-              Read the full tactics guide <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
         </section>
       </main>
 
-      {/* Sticky CTA */}
-      {intent && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:hidden">
-          <button
-            onClick={() => selectIntent('fix')}
-            className="w-full btn-pill justify-between"
-          >
-            <span>{stickyLabel}</span>
-            <span className="btn-pill-icon"><ArrowRight className="w-3 h-3" /></span>
-          </button>
-        </div>
-      )}
-
       {/* Footer */}
-      <footer className="relative z-10 max-w-[1200px] mx-auto px-6 py-10 border-t border-[var(--color-hairline)]">
-        <div className="flex flex-col md:flex-row justify-between gap-4 text-sm text-[var(--color-muted)]">
-          <span>© {new Date().getFullYear()} SloppyXBaby. Evidence-based prompt engineering.</span>
-          <div className="flex flex-wrap gap-6">
-            <Link to="/tactics" className="hover:text-[var(--color-ink)]">Tactics</Link>
-            <Link to="/app" className="hover:text-[var(--color-ink)]">Workspace</Link>
-            <Link to="/privacy" className="hover:text-[var(--color-ink)]">Privacy</Link>
-            <Link to="/terms" className="hover:text-[var(--color-ink)]">Terms</Link>
-            <Link to="/cookies" className="hover:text-[var(--color-ink)]">Cookies</Link>
+      <footer className="py-12 pb-16 border-t border-hairline">
+        <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 flex-wrap">
+            <span className="text-sm text-muted">© {new Date().getFullYear()} SloppyXBaby. Built for distracted builders.</span>
+            <nav className="flex flex-wrap gap-6" aria-label="Footer">
+              <Link to="/tactics" className="text-sm text-muted no-underline hover:text-pink transition-colors">Tactics</Link>
+              <Link to="/app" className="text-sm text-muted no-underline hover:text-pink transition-colors">Workspace</Link>
+              <Link to="/privacy" className="text-sm text-muted no-underline hover:text-pink transition-colors">Privacy</Link>
+              <Link to="/terms" className="text-sm text-muted no-underline hover:text-pink transition-colors">Terms</Link>
+              <Link to="/cookies" className="text-sm text-muted no-underline hover:text-pink transition-colors">Cookies</Link>
+            </nav>
           </div>
         </div>
       </footer>

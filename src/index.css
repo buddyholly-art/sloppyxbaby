@@ -23,6 +23,16 @@
   --color-sage-soft: rgba(31, 77, 63, 0.12);
   --color-sage-dim: rgba(31, 77, 63, 0.06);
 
+  /* ---- PREMIUM ACCENTS ---- */
+  --color-gold: #D4AF37;
+  --color-gold-soft: rgba(212, 175, 55, 0.18);
+  --color-pink: #FF2E7D;
+
+  /* ---- DARK TECHNICAL SURFACES ---- */
+  --color-slate: #0f172a;
+  --color-slate-2: #1e293b;
+  --color-slate-muted: #94a3b8;
+
   /* ---- SURFACE ---- */
   --color-surface: rgba(255, 255, 255, 0.55);
   --color-surface-solid: #FCFCFA;
@@ -58,6 +68,7 @@
   --shadow-hero-shell: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 0 0 1px rgba(10, 10, 10, 0.05), 0 12px 36px -18px rgba(10, 10, 10, 0.18);
   --shadow-nav-shell: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 0 0 1px rgba(10, 10, 10, 0.05), 0 12px 36px -18px rgba(10, 10, 10, 0.18);
   --shadow-pressed: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-nav: var(--shadow-nav-shell);
 }
 
 /* ================================================================
@@ -443,6 +454,123 @@ html, body {
 ::selection {
   background: rgba(31, 77, 63, 0.2);
   color: var(--color-ink);
+}
+
+/* ================================================================
+   FUNNEL COMPONENT HELPERS
+   ================================================================ */
+.text-section {
+  font-size: clamp(32px, 4.4vw, 54px);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.032em;
+}
+
+.panel-dark {
+  background: var(--color-slate);
+  color: #f8fafc;
+  border-radius: var(--radius-core);
+  border: 1px solid var(--color-slate-2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 24px 60px -24px rgba(0, 0, 0, 0.35);
+}
+
+.panel-dark .eyebrow {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  color: var(--color-slate-muted);
+}
+
+.scanner-input {
+  width: 100%;
+  min-height: 150px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--color-slate-2);
+  background: rgba(15, 23, 42, 0.6);
+  color: #f8fafc;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  resize: vertical;
+  outline: none;
+}
+
+.scanner-input:focus {
+  border-color: var(--color-sage-glow);
+  box-shadow: 0 0 0 3px rgba(90, 140, 122, 0.2);
+}
+
+.scanner-input::placeholder {
+  color: var(--color-slate-muted);
+}
+
+.metric-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-slate-2);
+  overflow: hidden;
+}
+
+.metric-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--color-sage-glow);
+  transition: width 800ms var(--ease-smooth);
+}
+
+.scanner-flag {
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 46, 125, 0.12);
+  color: var(--color-pink);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.slider-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-hairline-strong);
+  cursor: pointer;
+  transition: background 200ms;
+  border: none;
+  padding: 0;
+}
+
+.slider-dot.active {
+  background: var(--color-sage);
+}
+
+.slider-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-hairline);
+  background: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slider-btn:hover {
+  background: var(--color-surface-solid);
+}
+
+.pricing-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-gold);
+  color: var(--color-ink);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 /* ================================================================
