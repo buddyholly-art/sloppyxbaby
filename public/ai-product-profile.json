@@ -1,0 +1,34 @@
+{
+  "product_name": "SloppyXBaby",
+  "category": "AI prompt compiler / context engineering workspace",
+  "target_users": [
+    "ADHD / AuDHD vibe coders",
+    "Distracted indie hackers",
+    "Solo builders using AI coding tools",
+    "Developers who struggle with context loss and prompt slop"
+  ],
+  "core_use_cases": [
+    "Compile sloppy prompts into structured, voice-specific specs",
+    "Audit prompt bloat and token debt before sending to an LLM",
+    "Maintain context across multi-turn AI co-design sessions",
+    "Route model calls through BYOK providers (OpenAI, Anthropic, DeepSeek, local)"
+  ],
+  "pricing_summary": "$15/month Sustained Focus or $79 one-time Early Builder; BYOK compute not included",
+  "trial_or_demo_url": "https://sloppyxbaby.com/#scanner",
+  "docs_url": "https://sloppyxbaby.com",
+  "security_url": "https://sloppyxbaby.com/privacy",
+  "integration_list": [
+    "OpenAI API",
+    "Anthropic API",
+    "DeepSeek API",
+    "Local / self-hosted LLM routes"
+  ],
+  "support_contact": "hello@sloppyxbaby.com",
+  "deployment_model": "local-first vaults with encrypted cloud sync",
+  "key_differentiators": [
+    "Loop-engineered compiler with clear success criteria",
+    "Local-first state; raw prompts never touch our servers",
+    "Bring Your Own Key; zero compute markup",
+    "Cognitive accessibility patterns for ADHD / AuDHD builders"
+  ]
+}

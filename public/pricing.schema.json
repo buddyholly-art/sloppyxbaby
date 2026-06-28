@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "product_name": "SloppyXBaby",
+  "last_updated": "2026-06-28",
+  "currency": "USD",
+  "plans": [
+    {
+      "plan_id": "monthly",
+      "plan_name": "Sustained Focus",
+      "price": 15,
+      "billing_interval": "month",
+      "included_limits": [
+        "Unlimited multi-turn co-design",
+        "Active Impulsivity Shield",
+        "Real-time TCO & token math",
+        "Cloud-sync vaults across devices"
+      ],
+      "upgrade_triggers": [
+        "Want lifetime ownership",
+        "Need local Vector RAG integration",
+        "Prefer to avoid subscriptions"
+      ],
+      "buyer_fit": "Builders who ship weekly and prefer a low-friction subscription."
+    },
+    {
+      "plan_id": "lifetime",
+      "plan_name": "Early Builder",
+      "price": 79,
+      "billing_interval": "one_time",
+      "included_limits": [
+        "Everything in Sustained Focus",
+        "Lifetime platform updates",
+        "Local Vector RAG integration",
+        "No subscription fatigue"
+      ],
+      "upgrade_triggers": [
+        "Limited to first 500 builders"
+      ],
+      "buyer_fit": "Indie hackers who want to pay once and own the UI."
+    }
+  ],
+  "add_ons": [],
+  "notes": "Both plans require the user to bring their own API keys for LLM providers. SloppyXBaby does not markup token costs."
+}

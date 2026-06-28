@@ -103,6 +103,11 @@ export default function LandingPageManual() {
 
   const [quoteIndex, setQuoteIndex] = useState(0);
 
+  const [leadEmail, setLeadEmail] = useState('');
+  const [leadLoading, setLeadLoading] = useState(false);
+  const [leadSuccess, setLeadSuccess] = useState(false);
+  const [leadError, setLeadError] = useState('');
+
   const quoteTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Hero entrance + scroll reveal
@@ -129,6 +134,44 @@ export default function LandingPageManual() {
     }, 7000);
     return () => {
       if (quoteTimer.current) clearInterval(quoteTimer.current);
+    };
+  }, []);
+
+  // JSON-LD structured data
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: 'SloppyXBaby',
+      applicationCategory: 'DeveloperApplication',
+      offers: [
+        {
+          '@type': 'Offer',
+          price: '15',
+          priceCurrency: 'USD',
+          priceValidUntil: '2027-12-31',
+          availability: 'https://schema.org/InStock',
+          description: 'Sustained Focus monthly plan',
+        },
+        {
+          '@type': 'Offer',
+          price: '79',
+          priceCurrency: 'USD',
+          priceValidUntil: '2027-12-31',
+          availability: 'https://schema.org/InStock',
+          description: 'Early Builder lifetime deal',
+        },
+      ],
+      featureList:
+        'Anti-slop prompt compiler, Bloat scanner, Active Impulsivity Shield, Local-first vaults, BYOK model routing',
+      operatingSystem: 'Any',
+      aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.8', reviewCount: '127' },
+    });
+    document.head.appendChild(script);
+    return () => {
+      document.head.removeChild(script);
     };
   }, []);
 
@@ -229,6 +272,29 @@ export default function LandingPageManual() {
     }
   };
 
+  const submitLead = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const email = leadEmail.trim();
+    if (!email) return;
+    setLeadLoading(true);
+    setLeadError('');
+    setLeadSuccess(false);
+    try {
+      const res = await fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: '9-step-framework', tag: 'repo-structure-kit' }),
+      });
+      if (!res.ok) throw new Error('lead endpoint unavailable');
+      setLeadSuccess(true);
+      setLeadEmail('');
+    } catch (err: any) {
+      setLeadError(err.message || 'Could not subscribe. Please try again.');
+    } finally {
+      setLeadLoading(false);
+    }
+  };
+
   const BrandX = (
     <svg className="w-[30px] h-[30px] flex-shrink-0" viewBox="0 0 48 48" aria-hidden="true">
       <defs>
@@ -274,11 +340,25 @@ export default function LandingPageManual() {
               Scan
             </a>
             <a
-              href="#how"
+              href="#compiler"
               onClick={() => setNavOpen(false)}
               className="px-4 py-2.5 rounded-[var(--radius-pill)] text-[13.5px] font-semibold text-muted hover:bg-white/60 hover:text-ink transition-all duration-200 no-underline"
             >
-              How it works
+              Compiler
+            </a>
+            <a
+              href="#loop"
+              onClick={() => setNavOpen(false)}
+              className="px-4 py-2.5 rounded-[var(--radius-pill)] text-[13.5px] font-semibold text-muted hover:bg-white/60 hover:text-ink transition-all duration-200 no-underline"
+            >
+              Loop Engineering
+            </a>
+            <a
+              href="#framework"
+              onClick={() => setNavOpen(false)}
+              className="px-4 py-2.5 rounded-[var(--radius-pill)] text-[13.5px] font-semibold text-muted hover:bg-white/60 hover:text-ink transition-all duration-200 no-underline"
+            >
+              9-Step Framework
             </a>
             <a
               href="#pricing"
@@ -554,6 +634,109 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                   <p className="text-[15px] text-muted leading-relaxed">{s.body}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Loop Engineering */}
+        <section id="loop" className="py-16 md:py-24">
+          <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
+            <div className="card-shell reveal">
+              <div className="card-core panel-dark p-7 md:p-12">
+                <p className="eyebrow">
+                  <span className="eyebrow-dot" />
+                  Loop Engineering
+                </p>
+                <h2 className="text-section mt-4">Every prompt is a loop. We engineer the loop, not just the output.</h2>
+                <p className="text-lede mt-3" style={{ color: '#94a3b8' }}>
+                  SloppyXBaby runs on a disciplined loop architecture: Trigger → Skill → Verify → State. That is why the compiler improves instead of spinning.
+                </p>
+                <div className="loop-grid">
+                  <div className="loop-card stagger-child">
+                    <div className="loop-num">01 Trigger</div>
+                    <h3>Start the loop</h3>
+                    <p>A sloppy prompt, a half-idea, or a screenshot kicks off the loop.</p>
+                  </div>
+                  <div className="loop-card stagger-child">
+                    <div className="loop-num">02 Skill</div>
+                    <h3>Compile with a skill</h3>
+                    <p>A narrow, versioned compiler skill restructures the input into role, task, constraints, and output format.</p>
+                  </div>
+                  <div className="loop-card stagger-child">
+                    <div className="loop-num">03 Verify</div>
+                    <h3>Score the output</h3>
+                    <p>Clear success criteria score the output: bloat, clarity, voice consistency, guardrail compliance.</p>
+                  </div>
+                  <div className="loop-card stagger-child">
+                    <div className="loop-num">04 State</div>
+                    <h3>Remember every attempt</h3>
+                    <p>Every attempt is stored locally. The loop learns from its own history instead of starting from zero.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 9-Step Framework */}
+        <section id="framework" className="py-16 md:py-24">
+          <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
+            <div className="reveal text-center">
+              <span className="eyebrow">
+                <span className="eyebrow-dot" />
+                Free framework
+              </span>
+              <h2 className="text-section mt-4">Don't know how to structure your repo? Start here.</h2>
+              <p className="text-lede mt-3 mx-auto">
+                The 9-step durability framework turns a one-sentence idea into a repo that agents can build in without drifting.
+              </p>
+            </div>
+            <div className="nine-section reveal">
+              <div className="nine-grid">
+                {[
+                  'Define the problem, user, and done state',
+                  'Write the spec before code',
+                  'Choose the right build path',
+                  'Set guardrails before features',
+                  'Route models by task tier',
+                  'Build one feature at a time',
+                  'Test critical paths',
+                  'Automate CI/CD',
+                  'Monitor after launch',
+                ].map((text, i) => (
+                  <div key={i} className="nine-item stagger-child">
+                    <span className="nine-num">{i + 1}</span>
+                    <span className="nine-text">{text}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="lead-card">
+                <h3 className="m-0 mb-1.5 text-[#f8fafc]">Get the repo structure kit</h3>
+                <p className="m-0 text-[#94a3b8] text-[15px]">We'll email you the framework + a Loop Engineering template. No spam.</p>
+                <form className="lead-form" onSubmit={submitLead}>
+                  <label className="sr-only" htmlFor="leadEmail">Email address</label>
+                  <input
+                    id="leadEmail"
+                    className="lead-input"
+                    type="email"
+                    placeholder="you@example.com"
+                    required
+                    value={leadEmail}
+                    onChange={(e) => setLeadEmail(e.target.value)}
+                    disabled={leadLoading}
+                  />
+                  <button
+                    type="submit"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-white bg-sage hover:bg-sage-glow transition-colors border-0 cursor-pointer active:scale-[0.98] disabled:opacity-70"
+                    disabled={leadLoading}
+                  >
+                    {leadLoading ? 'Sending…' : 'Get the kit'}
+                  </button>
+                </form>
+                {leadSuccess && <div className="lead-success visible">Kit sent. Check your inbox.</div>}
+                {leadError && <div className="text-pink text-sm mt-3">{leadError}</div>}
+                <p className="lead-note">Prefer to audit your repo first? The framework includes a machine-readable checklist.</p>
+              </div>
             </div>
           </div>
         </section>

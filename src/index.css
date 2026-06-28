@@ -660,6 +660,177 @@ html, body {
 }
 
 /* ================================================================
+   LOOP ENGINEERING
+   ================================================================ */
+.loop-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 36px;
+}
+
+@media (max-width: 960px) {
+  .loop-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .loop-grid { grid-template-columns: 1fr; }
+}
+
+.loop-card {
+  padding: 28px;
+  border-radius: var(--radius-core);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 200ms, border-color 200ms;
+}
+
+.loop-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.loop-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-gold);
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+.loop-card h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #f8fafc;
+}
+
+.loop-card p {
+  font-size: 14.5px;
+  color: #94a3b8;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.loop-arrow {
+  color: var(--color-gold);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  margin: 0 4px;
+}
+
+/* ================================================================
+   9-STEP FRAMEWORK
+   ================================================================ */
+.nine-section {
+  background: var(--color-surface-solid);
+  border-radius: var(--radius-shell);
+  padding: 64px;
+  margin-top: 24px;
+  border: 1px solid var(--color-hairline);
+}
+
+@media (max-width: 900px) {
+  .nine-section { padding: 40px 28px; }
+}
+
+.nine-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 36px;
+}
+
+@media (max-width: 900px) {
+  .nine-grid { grid-template-columns: 1fr; }
+}
+
+.nine-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--color-hairline);
+}
+
+.nine-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-sage);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.nine-text {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-ink);
+}
+
+.lead-card {
+  margin-top: 40px;
+  padding: 32px;
+  border-radius: var(--radius-core);
+  background: var(--color-slate);
+  color: #f8fafc;
+  border: 1px solid var(--color-slate-2);
+}
+
+.lead-form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.lead-input {
+  flex: 1 1 240px;
+  padding: 14px 18px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-slate-2);
+  background: rgba(15, 23, 42, 0.6);
+  color: #f8fafc;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  outline: none;
+}
+
+.lead-input:focus {
+  border-color: var(--color-sage-glow);
+  box-shadow: 0 0 0 3px rgba(90, 140, 122, 0.2);
+}
+
+.lead-input::placeholder {
+  color: var(--color-slate-muted);
+}
+
+.lead-success {
+  display: none;
+  color: var(--color-sage-glow);
+  font-weight: 600;
+  margin-top: 14px;
+}
+
+.lead-success.visible {
+  display: block;
+}
+
+.lead-note {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-top: 12px;
+}
+
+/* ================================================================
    RESPONSIVE
    ================================================================ */
 @media (max-width: 768px) {
