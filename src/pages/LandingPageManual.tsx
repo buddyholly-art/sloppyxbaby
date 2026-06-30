@@ -178,7 +178,7 @@ export default function LandingPageManual() {
         },
       ],
       description:
-        'Coach Hype teaches the AuDHD↔LLM cognitive analog. Scaffolded coding environment with externalized memory, cited research, and anti-slop prompt engineering.',
+        'AuDHD scaffolded coding environment. Compile sloppy prompts, vault specs across sessions, run on your keys. You forget the middle; so does your LLM.',
       featureList:
         "Builder's Code self-audit, Anti-slop prompt compiler, Bloat scanner, Active Impulsivity Shield, Local-first vaults, BYOK Harness routing, Loop Engineering",
       operatingSystem: 'Any',
@@ -352,29 +352,15 @@ export default function LandingPageManual() {
               onClick={() => setNavOpen(false)}
               className="px-4 py-2.5 rounded-[var(--radius-pill)] text-[13.5px] font-semibold text-muted hover:bg-white/60 hover:text-ink transition-all duration-200 no-underline"
             >
-              Scan
+              Fix prompt
             </a>
-            <a
-              href="#compiler"
+            <Link
+              to="/app"
               onClick={() => setNavOpen(false)}
               className="px-4 py-2.5 rounded-[var(--radius-pill)] text-[13.5px] font-semibold text-muted hover:bg-white/60 hover:text-ink transition-all duration-200 no-underline"
             >
-              Compiler
-            </a>
-            <a
-              href="#loop"
-              onClick={() => setNavOpen(false)}
-              className="px-4 py-2.5 rounded-[var(--radius-pill)] text-[13.5px] font-semibold text-muted hover:bg-white/60 hover:text-ink transition-all duration-200 no-underline"
-            >
-              Loop Engineering
-            </a>
-            <a
-              href="#framework"
-              onClick={() => setNavOpen(false)}
-              className="px-4 py-2.5 rounded-[var(--radius-pill)] text-[13.5px] font-semibold text-muted hover:bg-white/60 hover:text-ink transition-all duration-200 no-underline"
-            >
-              9-Step Framework
-            </a>
+              Codespace
+            </Link>
             <a
               href="#pricing"
               onClick={() => setNavOpen(false)}
@@ -382,13 +368,6 @@ export default function LandingPageManual() {
             >
               Pricing
             </a>
-            <Link
-              to="/the-code"
-              onClick={() => setNavOpen(false)}
-              className="px-4 py-2.5 rounded-[var(--radius-pill)] text-[13.5px] font-semibold text-muted hover:bg-white/60 hover:text-ink transition-all duration-200 no-underline"
-            >
-              The Code
-            </Link>
           </div>
 
           <button
@@ -414,22 +393,28 @@ export default function LandingPageManual() {
               <div>
                 <span className="hero-entrance eyebrow" data-stagger="1">
                   <span className="eyebrow-dot" />
-                  AuDHD-friendly scaffolded coding environment
+                  AuDHD scaffolded coding environment · Compile it. Vault it. One thread.
                 </span>
-                <h1 className="hero-entrance text-display mt-6" data-stagger="2">
-                  Scaffold the thread.{' '}
-                  <span className="text-sage">Ship without the slop.</span>
-                </h1>
-                <p className="hero-entrance text-lede mt-[22px] mx-auto md:mx-0" data-stagger="3">
-                  Coach Hype teaches the cognitive analog: your AuDHD brain and your LLM share the same failure modes. SloppyXBaby is the external scaffolding — memory vaults, guardrails, and prompts explicit enough to survive monotropic focus.
+                <p className="hero-entrance font-[var(--font-mono)] text-[13px] uppercase tracking-[0.12em] text-sage mt-6" data-stagger="2">
+                  Same bug. Two systems.
                 </p>
-                <div className="hero-entrance mt-8 flex flex-wrap gap-3 justify-center md:justify-start" data-stagger="4">
+                <h1 className="hero-entrance text-display mt-4" data-stagger="3">
+                  You forget the middle.{' '}
+                  <span className="text-sage">The model forgets the middle.</span>
+                </h1>
+                <p className="hero-entrance text-lede mt-[22px] mx-auto md:mx-0" data-stagger="4">
+                  SloppyXBaby compiles + vaults what both of you keep dropping.
+                </p>
+                <div className="hero-entrance mt-8 flex flex-col items-center md:items-start gap-3" data-stagger="5">
                   <a href="#scanner" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-white bg-sage hover:bg-sage-glow transition-colors no-underline active:scale-[0.98]">
-                    Fix my prompt
+                    Scan my prompt (free, local)
                   </a>
-                  <a href="#how" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-surface hover:bg-surface-solid shadow-[inset_0_0_0_1px_var(--color-hairline-strong)] transition-colors no-underline active:scale-[0.98]">
-                    See how it works
-                  </a>
+                  <p className="text-sm text-muted m-0 text-center md:text-left">
+                    Full codespace: compile · vault · run on your keys →{' '}
+                    <Link to="/app" className="text-sage font-semibold no-underline hover:text-sage-glow">
+                      /app
+                    </Link>
+                  </p>
                 </div>
               </div>
 
@@ -500,9 +485,9 @@ export default function LandingPageManual() {
                         <div className="mt-7 pt-6 border-t border-slate-2">
                           <p className="text-[#e2e8f0] text-[17px] font-semibold mb-3">Fix your context windows. Unlock the full compiler.</p>
                           <div className="flex flex-wrap gap-3">
-                            <a href="#pricing" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all no-underline active:scale-[0.98]">
-                              Initialize Workspace
-                            </a>
+                            <Link to="/app" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all no-underline active:scale-[0.98]">
+                              Open codespace
+                            </Link>
                             <button
                               onClick={runGenerate}
                               disabled={generating}
@@ -603,9 +588,9 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                   </div>
                 </div>
                 <div className="mt-7">
-                  <a href="#pricing" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all no-underline active:scale-[0.98]">
-                    Compile your first prompt
-                  </a>
+                  <Link to="/app?stage=compile" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all no-underline active:scale-[0.98]">
+                    Open codespace
+                  </Link>
                 </div>
               </div>
             </div>
@@ -660,6 +645,46 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                   <p className="text-[15px] text-muted leading-relaxed">{s.body}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Codespace proof strip */}
+        <section id="proof" className="py-16 md:py-24">
+          <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
+            <div className="reveal text-center mb-10">
+              <span className="eyebrow">
+                <span className="eyebrow-dot" />
+                This is the product
+              </span>
+              <p className="text-lede mt-4 mx-auto max-w-[640px]">
+                Everything else on this page is the research behind it.
+              </p>
+            </div>
+            <div className="proof-strip reveal">
+              <div className="proof-panel stagger-child">
+                <div className="font-[var(--font-mono)] text-[10px] tracking-[0.14em] uppercase text-pink mb-3">01 · Slop in</div>
+                <p className="text-sm text-muted m-0 mb-3">Messy Cursor chat, tab 14:</p>
+                <div className="p-4 rounded-xl border border-hairline bg-[rgba(255,46,125,0.06)] text-sm leading-relaxed text-ink">
+                  fix the auth flow and make it not suck. magic links. dont break prod. we use cloudflare??? also the login button is weird
+                </div>
+              </div>
+              <div className="proof-panel proof-panel-accent stagger-child">
+                <div className="font-[var(--font-mono)] text-[10px] tracking-[0.14em] uppercase text-sage mb-3">02 · Spec out</div>
+                <pre className="m-0 whitespace-pre-wrap font-[var(--font-mono)] text-[11px] leading-relaxed text-ink">{`ROLE: Backend engineer (Cloudflare Pages Functions)
+TASK: Fix magic-link auth without breaking prod
+CONSTRAINTS: No API signature changes; tests must pass
+GUARDRAILS: No fake stats; no scope creep
+OUTPUT: Minimal diff + rollback notes`}</pre>
+              </div>
+              <div className="proof-panel stagger-child">
+                <div className="font-[var(--font-mono)] text-[10px] tracking-[0.14em] uppercase text-gold mb-3">03 · Vaulted</div>
+                <div className="p-4 rounded-xl border border-hairline bg-canvas-warm font-[var(--font-mono)] text-[12px] leading-relaxed">
+                  <div className="text-muted text-[10px] uppercase tracking-wide mb-2">Memory Vault · session_2026-06-30</div>
+                  <div className="text-ink font-semibold">Resume Tuesday in 5 seconds.</div>
+                  <p className="text-muted mt-2 mb-0 text-[11px]">Compiled spec + constraints + last verifier pass — no re-reading chat history.</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -850,10 +875,11 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                 <span className="eyebrow-dot" />
                 Pricing
               </span>
-              <h2 className="text-section mt-4">Pick your path</h2>
-              <p className="text-lede mt-3 mx-auto">
-                CapEx once (lifetime) or OpEx monthly — both routes include the full workspace. No bloated feature grids. No hidden compute markups.
+              <h2 className="text-section mt-4">Get the codespace</h2>
+              <p className="text-lede mt-3 mx-auto max-w-[720px]">
+                Compiler, memory vault, refinement loop, BYOK harness. Your keys. Your prompts stay local-first.
               </p>
+              <p className="text-sm text-muted mt-2 mx-auto">Monthly vs lifetime — both include the full workspace. No compute markups.</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 max-w-[840px] mx-auto reveal">
@@ -862,12 +888,12 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                 <span className="pricing-badge hidden" aria-hidden="true">Popular</span>
                 <div className="card-core p-9 flex flex-col gap-3.5">
                   <div className="text-xl font-extrabold">Sustained Focus</div>
-                  <span className="inline-block w-fit px-2.5 py-[5px] rounded-[var(--radius-pill)] bg-sage-dim text-sage font-[var(--font-mono)] text-[10.5px]">OpEx · monthly</span>
+                  <span className="inline-block w-fit px-2.5 py-[5px] rounded-[var(--radius-pill)] bg-sage-dim text-sage font-[var(--font-mono)] text-[10.5px]">Monthly</span>
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-[52px] font-extrabold tracking-[-0.04em]">$15</span>
                     <span className="text-base text-muted font-medium">/ month</span>
                   </div>
-                  <p className="text-[15px] opacity-90 leading-relaxed">Ongoing OpEx for AuDHD builders who ship every week.</p>
+                  <p className="text-[15px] opacity-90 leading-relaxed">For AuDHD builders who ship every week.</p>
                   <ul className="list-none p-0 m-2 flex flex-col gap-2.5">
                     {[
                       'Unlimited multi-turn co-design',
@@ -887,7 +913,7 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                     onClick={(e) => checkout('monthly', e.currentTarget)}
                     className="mt-auto w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-surface hover:bg-surface-solid shadow-[inset_0_0_0_1px_var(--color-hairline-strong)] transition-colors border-0 cursor-pointer active:scale-[0.98]"
                   >
-                    Initialize Workspace
+                    Open codespace ($15/mo)
                   </button>
                 </div>
               </div>
@@ -897,12 +923,12 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                 <span className="pricing-badge">Limited to first 500 builders</span>
                 <div className="card-core p-9 flex flex-col gap-3.5 bg-ink text-canvas shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
                   <div className="text-xl font-extrabold">Early Builder</div>
-                  <span className="inline-block w-fit px-2.5 py-[5px] rounded-[var(--radius-pill)] bg-gold-soft text-ink font-[var(--font-mono)] text-[10.5px]">CapEx · lifetime</span>
+                  <span className="inline-block w-fit px-2.5 py-[5px] rounded-[var(--radius-pill)] bg-gold-soft text-ink font-[var(--font-mono)] text-[10.5px]">Lifetime</span>
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-[52px] font-extrabold tracking-[-0.04em]">$79</span>
                     <span className="text-base text-slate-muted font-medium">/ one-time</span>
                   </div>
-                  <p className="text-[15px] opacity-90 leading-relaxed">One-time CapEx, own the UI. For indie hackers who hate subscription OpEx.</p>
+                  <p className="text-[15px] opacity-90 leading-relaxed">Pay once, own the codespace. For indie hackers who hate subscriptions.</p>
                   <ul className="list-none p-0 m-2 flex flex-col gap-2.5">
                     {[
                       'Everything in Sustained Focus',
@@ -922,7 +948,7 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                     onClick={(e) => checkout('lifetime', e.currentTarget)}
                     className="mt-auto w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all border-0 cursor-pointer active:scale-[0.98]"
                   >
-                    Initialize Workspace
+                    Lifetime codespace ($79)
                   </button>
                 </div>
               </div>
@@ -963,16 +989,21 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
       {/* Footer */}
       <footer className="py-12 pb-16 border-t border-hairline">
         <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 flex-wrap">
-            <span className="text-sm text-muted">© {new Date().getFullYear()} SloppyXBaby. Built for distracted builders.</span>
-            <nav className="flex flex-wrap gap-6" aria-label="Footer">
+          <div className="mb-8 pb-8 border-b border-hairline">
+            <p className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.14em] text-muted mb-3">For serious builders</p>
+            <nav className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Builder resources">
               <Link to="/the-code" className="text-sm text-muted no-underline hover:text-pink transition-colors">The Code</Link>
+              <a href="#loop" className="text-sm text-muted no-underline hover:text-pink transition-colors">Loop Engineering</a>
+              <a href="#framework" className="text-sm text-muted no-underline hover:text-pink transition-colors">9-Step Framework</a>
               <Link to="/tactics" className="text-sm text-muted no-underline hover:text-pink transition-colors">Tactics</Link>
-              <Link to="/app?stage=compile" className="text-sm text-muted no-underline hover:text-pink transition-colors">Prompt Compiler</Link>
-              <Link to="/app?stage=impulsivityShield" className="text-sm text-muted no-underline hover:text-pink transition-colors">SSOT Auditor</Link>
-              <Link to="/app?stage=vectorAdvisor" className="text-sm text-muted no-underline hover:text-pink transition-colors">Vector RAG</Link>
-              <Link to="/app?stage=compile" className="text-sm text-muted no-underline hover:text-pink transition-colors">Context Builder</Link>
+            </nav>
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 flex-wrap">
+            <span className="text-sm text-muted">© {new Date().getFullYear()} SloppyXBaby. AuDHD scaffolded coding environment.</span>
+            <nav className="flex flex-wrap gap-6" aria-label="Legal">
               <Link to="/privacy" className="text-sm text-muted no-underline hover:text-pink transition-colors">Privacy</Link>
+              <Link to="/terms" className="text-sm text-muted no-underline hover:text-pink transition-colors">Terms</Link>
+              <Link to="/cookies" className="text-sm text-muted no-underline hover:text-pink transition-colors">Cookies</Link>
             </nav>
           </div>
         </div>

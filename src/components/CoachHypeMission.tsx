@@ -13,6 +13,7 @@ export default function CoachHypeMission() {
               Coach Hype teaches the cognitive analog
             </span>
             <h2 className="text-section mt-4">{COACH_HYPE_MISSION.headline}</h2>
+            <p className="text-lede mt-3 max-w-[820px] font-semibold text-ink">{COACH_HYPE_MISSION.subline}</p>
             <p className="text-lede mt-3 max-w-[820px]">{COACH_HYPE_MISSION.body}</p>
             <p className="text-sm text-muted mt-2 font-[var(--font-mono)]">{COACH_HYPE_TAGLINE}</p>
 

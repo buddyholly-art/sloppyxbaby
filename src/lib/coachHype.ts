@@ -18,8 +18,9 @@ export const COACH_HYPE_TAGLINE =
   'Smart friend energy. Zero toxic positivity. Every punchline lands on a citation.';
 
 export const COACH_HYPE_MISSION = {
-  headline: 'Your brain and your LLM share the same failure modes.',
-  body: 'Transformer attention bleeds like an ADHD Default Mode Network. Context windows overflow like working memory. Models confabulate like gist-heavy recall. SloppyXBaby is the external scaffolding both systems need — point-of-performance rules, offloaded state, and prompts explicit enough for a monotropic mind.',
+  headline: "You're not bad at coding. You're running two leaky working-memory systems without scaffolding.",
+  subline: "Here's the codespace that holds the spec for both.",
+  body: 'Context windows overflow like working memory. Models confabulate like gist-heavy recall. Attention bleeds when you context-switch. SloppyXBaby compiles + vaults what both of you keep dropping — point-of-performance rules, offloaded state, and prompts explicit enough for a monotropic mind.',
   stat: 'Meta-analyses put ADHD working-memory impairment at Cohen\'s d ≈ 0.69–0.74 versus neurotypical controls.',
   cite: 'Barkley executive-function model · ADHD working-memory literature',
 };
