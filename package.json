@@ -15,9 +15,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predev": "node scripts/sync-public-kit.mjs",
     "pages:dev": "wrangler pages dev --compatibility-date=2026-06-23",
+    "prebuild": "node scripts/sync-public-kit.mjs",
+    "sync:public-kit": "node scripts/sync-public-kit.mjs",
     "build": "vite build",
-    "deploy": "wrangler pages deploy",
+    "deploy": "npm run build && wrangler pages deploy",
     "clean": "rm -rf dist .wrangler",
     "lint": "tsc --noEmit"
   },
