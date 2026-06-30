@@ -1,0 +1,47 @@
+name: python-runtime-optimizer
+version: 1.0.0
+description: >
+  Iteratively optimize a Python hot path until P99 latency improves by at least
+  5% versus baseline while keeping the full test suite green.
+owner: platform
+tier: 2
+success_criteria:
+  tier: 2
+  statement: "P99 latency improves >= 5% vs baseline AND pytest exits 0."
+  metrics:
+    - id: p99_improvement_pct
+      type: threshold
+      target: 5
+      unit: percent
+      description: Minimum P99 improvement vs attempts[0] baseline
+    - id: tests_pass
+      type: boolean
+      target: true
+      description: pytest exit code 0
+phases:
+  trigger:
+    type: manual
+    entrypoint: "Agent session or Claude Routine on perf label"
+  execution:
+    skill_path: skill.md
+    model_tier: reasoning
+    max_turns_per_iteration: 8
+  verification:
+    verifier_path: verifier.py
+    timeout_seconds: 300
+  state:
+    attempts_path: state/attempts.jsonl
+    progress_doc: state/progress.md
+stop_conditions:
+  max_iterations: 8
+  max_cost_usd: 12.0
+  max_duration_minutes: 45
+  on_success: open_pr
+budget:
+  max_tokens_per_iteration: 80000
+  preferred_model: claude-sonnet
+journey_stage: skill
+tags:
+  - performance
+  - python
+  - tier-2

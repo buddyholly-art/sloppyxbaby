@@ -1,0 +1,43 @@
+name: code-performance-optimizer
+version: 1.0.0
+description: >
+  Iteratively improve hot-path P99 latency by at least 5% versus the baseline
+  attempt while keeping the test suite green.
+owner: platform
+tier: 2
+success_criteria:
+  tier: 2
+  statement: "P99 ms improves >= 5% vs baseline attempt AND tests_pass is true."
+  metrics:
+    - id: p99_improvement_pct
+      type: threshold
+      target: 5
+      unit: percent
+    - id: tests_pass
+      type: boolean
+      target: true
+phases:
+  trigger:
+    type: manual
+    entrypoint: "Claude Code session or Routine on label:perf"
+  execution:
+    skill_path: skill.md
+    model_tier: reasoning
+    max_turns_per_iteration: 8
+  verification:
+    verifier_path: verifier.py
+    timeout_seconds: 300
+  state:
+    attempts_path: state/attempts.jsonl
+    progress_doc: state/progress.md
+stop_conditions:
+  max_iterations: 8
+  max_cost_usd: 12.0
+  max_duration_minutes: 45
+  on_success: open_pr
+budget:
+  max_tokens_per_iteration: 80000
+journey_stage: skill
+tags:
+  - performance
+  - tier-2

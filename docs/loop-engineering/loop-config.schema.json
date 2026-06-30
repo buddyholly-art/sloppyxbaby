@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sloppyxbaby.com/schemas/loop-config.schema.json",
+  "title": "Loop Engineering Config",
+  "description": "Schema for loops/<name>/config.yaml. Agents and CI can validate or generate loop definitions against this file.",
+  "type": "object",
+  "required": ["name", "version", "description", "success_criteria", "phases", "stop_conditions"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Stable loop identifier (kebab-case)."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 20
+    },
+    "owner": {
+      "type": "string",
+      "description": "Human or team accountable for the loop."
+    },
+    "tier": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Dominant success-criteria tier (1=deterministic, 5=fully subjective)."
+    },
+    "success_criteria": {
+      "type": "object",
+      "required": ["tier", "statement", "metrics"],
+      "additionalProperties": false,
+      "properties": {
+        "tier": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "statement": {
+          "type": "string",
+          "description": "Single sentence a verifier can evaluate."
+        },
+        "metrics": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "type", "target"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string" },
+              "type": {
+                "type": "string",
+                "enum": ["boolean", "numeric", "threshold", "regex", "llm_judge", "human_gate"]
+              },
+              "target": {},
+              "unit": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "human_gate": {
+          "type": "object",
+          "properties": {
+            "required": { "type": "boolean" },
+            "prompt": { "type": "string" }
+          }
+        }
+      }
+    },
+    "phases": {
+      "type": "object",
+      "required": ["trigger", "execution", "verification", "state"],
+      "additionalProperties": false,
+      "properties": {
+        "trigger": {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["manual", "cron", "github_event", "webhook", "pr_comment", "routine"]
+            },
+            "schedule": { "type": "string" },
+            "event": { "type": "string" },
+            "entrypoint": { "type": "string" }
+          }
+        },
+        "execution": {
+          "type": "object",
+          "required": ["skill_path"],
+          "properties": {
+            "skill_path": { "type": "string" },
+            "model_tier": {
+              "type": "string",
+              "enum": ["fast", "balanced", "reasoning"]
+            },
+            "max_turns_per_iteration": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "verification": {
+          "type": "object",
+          "required": ["verifier_path"],
+          "properties": {
+            "verifier_path": { "type": "string" },
+            "timeout_seconds": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "state": {
+          "type": "object",
+          "required": ["attempts_path"],
+          "properties": {
+            "attempts_path": { "type": "string" },
+            "rag_index": { "type": "string" },
+            "progress_doc": { "type": "string" }
+          }
+        }
+      }
+    },
+    "stop_conditions": {
+      "type": "object",
+      "required": ["max_iterations"],
+      "properties": {
+        "max_iterations": { "type": "integer", "minimum": 1 },
+        "max_cost_usd": { "type": "number", "minimum": 0 },
+        "max_duration_minutes": { "type": "integer", "minimum": 1 },
+        "on_success": {
+          "type": "string",
+          "enum": ["stop", "continue_improve", "open_pr"]
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "properties": {
+        "max_tokens_per_iteration": { "type": "integer" },
+        "preferred_model": { "type": "string" }
+      }
+    },
+    "journey_stage": {
+      "type": "string",
+      "enum": ["manual", "skill", "automate", "self_improve"],
+      "description": "Where this loop sits on the implementation journey."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

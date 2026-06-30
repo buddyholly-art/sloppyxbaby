@@ -37,3 +37,16 @@ pnpm-debug.log*
 
 # TypeScript
 *.tsbuildinfo
+# Added by repo-audit-remediation-runner
+.env.local
+.env.*.local
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Loop state (runtime memory — structure tracked via .gitkeep)
+loops/*/state/attempts.jsonl
+loops/*/state/*.jsonl
+loops/*/state/progress.md
+!loops/*/state/.gitkeep

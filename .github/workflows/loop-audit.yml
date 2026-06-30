@@ -1,0 +1,22 @@
+name: Loop Audit
+
+on:
+  pull_request:
+    paths:
+      - 'loops/**'
+      - 'docs/loop-engineering/**'
+      - 'scripts/loop-audit.py'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        loop:
+          - loops/code-performance-optimizer
+          - loops/content-improver
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit ${{ matrix.loop }}
+        run: python3 scripts/loop-audit.py ${{ matrix.loop }} --json

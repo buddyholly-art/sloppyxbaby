@@ -1,0 +1,52 @@
+name: content-improver
+version: 1.0.0
+description: >
+  Iteratively improve a target content file until bloat and anti-slop checks pass
+  and LLM rubric score meets threshold; optional human gate for brand voice.
+owner: product
+tier: 3
+success_criteria:
+  tier: 3
+  statement: "Bloat score <= 15, zero banned patterns, rubric >= 8/10 OR human_gate approved."
+  metrics:
+    - id: bloat_score
+      type: threshold
+      target: 15
+      description: Lower is better; counts filler phrases
+    - id: banned_patterns
+      type: boolean
+      target: false
+      description: No purple-gradient/indigo/fake-stats copy
+    - id: rubric_score
+      type: threshold
+      target: 8
+      unit: "out of 10"
+  human_gate:
+    required: false
+    prompt: "Approve voice for publication? (y/n)"
+phases:
+  trigger:
+    type: manual
+    entrypoint: "Editor requests copy pass on a file"
+  execution:
+    skill_path: skill.md
+    model_tier: balanced
+    max_turns_per_iteration: 6
+  verification:
+    verifier_path: verifier.py
+    timeout_seconds: 120
+  state:
+    attempts_path: state/attempts.jsonl
+    progress_doc: state/progress.md
+stop_conditions:
+  max_iterations: 6
+  max_cost_usd: 8.0
+  max_duration_minutes: 30
+  on_success: stop
+budget:
+  max_tokens_per_iteration: 40000
+journey_stage: skill
+tags:
+  - content
+  - copy
+  - tier-3

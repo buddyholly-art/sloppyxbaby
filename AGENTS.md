@@ -17,7 +17,8 @@ Public marketing + product site for **SloppyXBaby Prompt Advocate**, hosted on C
 - `src/` — React frontend.
 - `functions/api/` — Cloudflare Pages Functions (backend API).
 - `public/` — Static assets, SEO files (`robots.txt`, `sitemap.xml`, OG image).
-- `docs/` — Reference documentation, especially `LLM_CONTEXT_ENGINEERING_TACTICS.md`.
+- `docs/` — Reference documentation, especially `LLM_CONTEXT_ENGINEERING_TACTICS.md` and `docs/loop-engineering/`.
+- `loops/` — Self-improving agent loop instances (`config.yaml`, `skill.md`, `verifier.py`, `state/`).
 
 ## Env / Secrets
 
