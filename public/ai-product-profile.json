@@ -15,7 +15,7 @@
   ],
   "pricing_summary": "$15/month Sustained Focus or $79 one-time Early Builder; BYOK compute not included",
   "trial_or_demo_url": "https://sloppyxbaby.com/#scanner",
-  "docs_url": "https://sloppyxbaby.com",
+  "docs_url": "https://sloppyxbaby.com/the-code",
   "security_url": "https://sloppyxbaby.com/privacy",
   "integration_list": [
     "OpenAI API",
@@ -26,9 +26,10 @@
   "support_contact": "hello@sloppyxbaby.com",
   "deployment_model": "local-first vaults with encrypted cloud sync",
   "key_differentiators": [
+    "The Builder's Code: 12-concept AuDHD self-audit",
     "Loop-engineered compiler with clear success criteria",
     "Local-first state; raw prompts never touch our servers",
-    "Bring Your Own Key; zero compute markup",
-    "Cognitive accessibility patterns for ADHD / AuDHD builders"
+    "Bring Your Own Key Harness; zero compute markup",
+    "Cognitive accessibility patterns for ADHD / AuDHD / neurodivergent builders"
   ]
 }

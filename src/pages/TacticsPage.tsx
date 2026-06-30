@@ -69,6 +69,7 @@ export default function TacticsPage() {
 
       <footer className="relative z-10 max-w-[800px] mx-auto px-6 py-10 border-t border-[var(--color-hairline)] text-sm text-[var(--color-muted)] flex flex-wrap gap-6">
         <Link to="/" className="hover:text-[var(--color-ink)]">Home</Link>
+        <Link to="/the-code" className="hover:text-[var(--color-ink)]">The Code</Link>
         <Link to="/privacy" className="hover:text-[var(--color-ink)]">Privacy</Link>
         <Link to="/terms" className="hover:text-[var(--color-ink)]">Terms</Link>
         <Link to="/cookies" className="hover:text-[var(--color-ink)]">Cookies</Link>

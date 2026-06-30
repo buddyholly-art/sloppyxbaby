@@ -176,10 +176,12 @@ export default function LandingPageManual() {
           description: 'Early Builder lifetime deal',
         },
       ],
+      description:
+        'AuDHD-friendly scaffolded coding environment. Externalized memory, one clear next step, and evidence-based context engineering for neurodivergent builders.',
       featureList:
-        'Anti-slop prompt compiler, Bloat scanner, Active Impulsivity Shield, Local-first vaults, BYOK model routing',
+        "Builder's Code self-audit, Anti-slop prompt compiler, Bloat scanner, Active Impulsivity Shield, Local-first vaults, BYOK Harness routing, Loop Engineering",
       operatingSystem: 'Any',
-      aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.8', reviewCount: '127' },
+      keywords: 'AuDHD, ADHD, neurodivergent developer, prompt engineering, context engineering, working memory, monotropism',
     });
     document.head.appendChild(script);
     return () => {
@@ -801,7 +803,10 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                 Evidence basis
               </span>
               <h2 className="text-section mt-4">Built on research, not vibes.</h2>
-              <p className="text-lede mt-2.5">Every feature maps to a documented principle from working memory, executive function, or universal design.</p>
+              <p className="text-lede mt-2.5">
+                Every feature maps to documented principles from working memory, executive function, monotropism, and universal design —
+                the same cognitive-analog research behind ADHD/AuDHD support tools.
+              </p>
             </div>
 
             <div className="relative min-h-[170px] mt-9 reveal" aria-live="polite">
@@ -853,6 +858,14 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                 →
               </button>
             </div>
+            <div className="mt-8 reveal">
+              <Link
+                to="/the-code"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-surface hover:bg-surface-solid shadow-[inset_0_0_0_1px_var(--color-hairline-strong)] transition-colors no-underline active:scale-[0.98]"
+              >
+                Audit your setup against The Builder&apos;s Code
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -876,11 +889,12 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                 <span className="pricing-badge hidden" aria-hidden="true">Popular</span>
                 <div className="card-core p-9 flex flex-col gap-3.5">
                   <div className="text-xl font-extrabold">Sustained Focus</div>
+                  <span className="inline-block w-fit px-2.5 py-[5px] rounded-[var(--radius-pill)] bg-sage-dim text-sage font-[var(--font-mono)] text-[10.5px]">OpEx · monthly</span>
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-[52px] font-extrabold tracking-[-0.04em]">$15</span>
                     <span className="text-base text-muted font-medium">/ month</span>
                   </div>
-                  <p className="text-[15px] opacity-90 leading-relaxed">Ongoing access for builders who ship every week.</p>
+                  <p className="text-[15px] opacity-90 leading-relaxed">Ongoing OpEx for AuDHD builders who ship every week.</p>
                   <ul className="list-none p-0 m-2 flex flex-col gap-2.5">
                     {[
                       'Unlimited multi-turn co-design',
@@ -910,11 +924,12 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                 <span className="pricing-badge">Limited to first 500 builders</span>
                 <div className="card-core p-9 flex flex-col gap-3.5 bg-ink text-canvas shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
                   <div className="text-xl font-extrabold">Early Builder</div>
+                  <span className="inline-block w-fit px-2.5 py-[5px] rounded-[var(--radius-pill)] bg-gold-soft text-ink font-[var(--font-mono)] text-[10.5px]">CapEx · lifetime</span>
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-[52px] font-extrabold tracking-[-0.04em]">$79</span>
                     <span className="text-base text-slate-muted font-medium">/ one-time</span>
                   </div>
-                  <p className="text-[15px] opacity-90 leading-relaxed">Pay once, own the UI. For indie hackers who hate subscriptions.</p>
+                  <p className="text-[15px] opacity-90 leading-relaxed">One-time CapEx, own the UI. For indie hackers who hate subscription OpEx.</p>
                   <ul className="list-none p-0 m-2 flex flex-col gap-2.5">
                     {[
                       'Everything in Sustained Focus',
@@ -980,10 +995,10 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
             <nav className="flex flex-wrap gap-6" aria-label="Footer">
               <Link to="/the-code" className="text-sm text-muted no-underline hover:text-pink transition-colors">The Code</Link>
               <Link to="/tactics" className="text-sm text-muted no-underline hover:text-pink transition-colors">Tactics</Link>
-              <a href="/prompt-compiler" className="text-sm text-muted no-underline hover:text-pink transition-colors">Prompt Compiler</a>
-              <a href="/ssot-auditor" className="text-sm text-muted no-underline hover:text-pink transition-colors">SSOT Auditor</a>
-              <a href="/vector-rag" className="text-sm text-muted no-underline hover:text-pink transition-colors">Vector RAG</a>
-              <a href="/context-builder" className="text-sm text-muted no-underline hover:text-pink transition-colors">Context Builder</a>
+              <Link to="/app?stage=compile" className="text-sm text-muted no-underline hover:text-pink transition-colors">Prompt Compiler</Link>
+              <Link to="/app?stage=impulsivityShield" className="text-sm text-muted no-underline hover:text-pink transition-colors">SSOT Auditor</Link>
+              <Link to="/app?stage=vectorAdvisor" className="text-sm text-muted no-underline hover:text-pink transition-colors">Vector RAG</Link>
+              <Link to="/app?stage=compile" className="text-sm text-muted no-underline hover:text-pink transition-colors">Context Builder</Link>
               <Link to="/privacy" className="text-sm text-muted no-underline hover:text-pink transition-colors">Privacy</Link>
             </nav>
           </div>

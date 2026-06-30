@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   LlmOsPromptCompiler,
   LlmOsCoreInterface,
@@ -76,6 +77,7 @@ function ChevronRight({ className = '' }: { className?: string }) {
 
 /* ─── MAIN APP ─── */
 export default function App() {
+  const [searchParams] = useSearchParams();
   const [user, setUser] = useState<User | null>(null);
   const [googleLoaded, setGoogleLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<StageKey>('compile');
@@ -83,6 +85,17 @@ export default function App() {
   const [tabScroll, setTabScroll] = useState(0);
 
   const navRef = useRef<HTMLDivElement>(null);
+
+  /* ── Deep link: /app?stage=compile ── */
+  useEffect(() => {
+    const stage = searchParams.get('stage');
+    if (!stage) return;
+    const match = STAGES.find((s) => s.key === stage);
+    if (match) {
+      setActiveTab(match.key);
+      setOpenTabs((prev) => (prev.includes(match.key) ? prev : [...prev, match.key]));
+    }
+  }, [searchParams]);
 
   /* ── OAuth ── */
   const loadGapi = useCallback(() => {

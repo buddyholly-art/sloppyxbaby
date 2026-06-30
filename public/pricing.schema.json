@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "product_name": "SloppyXBaby",
-  "last_updated": "2026-06-28",
+  "last_updated": "2026-06-30",
   "currency": "USD",
   "plans": [
     {
@@ -20,7 +20,7 @@
         "Need local Vector RAG integration",
         "Prefer to avoid subscriptions"
       ],
-      "buyer_fit": "Builders who ship weekly and prefer a low-friction subscription."
+      "buyer_fit": "AuDHD builders who ship weekly and prefer low-friction OpEx."
     },
     {
       "plan_id": "lifetime",
@@ -36,7 +36,7 @@
       "upgrade_triggers": [
         "Limited to first 500 builders"
       ],
-      "buyer_fit": "Indie hackers who want to pay once and own the UI."
+      "buyer_fit": "Indie hackers who want one-time CapEx and own the UI."
     }
   ],
   "add_ons": [],
