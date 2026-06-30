@@ -1,43 +1,81 @@
-name: code-performance-optimizer
-version: 1.0.0
-description: >
-  Iteratively improve hot-path P99 latency by at least 5% versus the baseline
-  attempt while keeping the test suite green.
-owner: platform
-tier: 2
-success_criteria:
+schema_version: "1.0.0"
+
+metadata:
+  name: "code-performance-optimizer"
+  owner: "platform"
+  status: "staging"
+  promotion_level: "implementation"
+  justification: >
+    Hot-path performance work recurs on every release. A loop with benchmark
+    verification and attempt history prevents repeating failed optimizations
+    and compounds learning across agent sessions.
+
+trigger:
+  type: "manual"
+  source: "cli"
+  schedule_or_event: "agent session or Claude Routine on label:perf"
+  input_contract:
+    required:
+      - "target_module"
+      - "benchmark_fixture"
+
+execution:
+  skill_file: "skill.md"
+  allowed_tools:
+    - "shell"
+    - "filesystem"
+    - "git"
+  forbidden_actions:
+    - "disable tests"
+    - "change public API without approval"
+    - "skip verifier"
+  output_contract:
+    required_files:
+      - "state/attempts.jsonl"
+    required_report_fields:
+      - "p99_ms"
+      - "p99_improvement_pct"
+      - "tests_pass"
+
+verification:
   tier: 2
-  statement: "P99 ms improves >= 5% vs baseline attempt AND tests_pass is true."
-  metrics:
-    - id: p99_improvement_pct
-      type: threshold
-      target: 5
-      unit: percent
-    - id: tests_pass
-      type: boolean
-      target: true
-phases:
-  trigger:
-    type: manual
-    entrypoint: "Claude Code session or Routine on label:perf"
-  execution:
-    skill_path: skill.md
-    model_tier: reasoning
-    max_turns_per_iteration: 8
-  verification:
-    verifier_path: verifier.py
-    timeout_seconds: 300
-  state:
-    attempts_path: state/attempts.jsonl
-    progress_doc: state/progress.md
+  criteria:
+    - id: "tests_pass"
+      type: "deterministic"
+      expected: "npm run lint exits 0"
+    - id: "p99_improvement"
+      type: "numeric"
+      expected: "p99_improvement_pct >= 5 vs baseline attempt"
+  verifier_command: "python3 loops/code-performance-optimizer/verifier.py"
+  failure_response: "Append metrics to state/attempts.jsonl and stop after max_attempts."
+
+state:
+  path: "loops/code-performance-optimizer/state"
+  format: "jsonl"
+  write_policy: "Append one record per iteration with hypothesis, metrics, pass/fail, and next adjustment."
+  retention_policy: "Keep all attempts for optimization learning."
+
+budgets:
+  - name: "attempts"
+    unit: "count"
+    limit: 8
+    stop_threshold: 8
+  - name: "cost_usd"
+    unit: "usd"
+    limit: 12
+    stop_threshold: 12
+
 stop_conditions:
-  max_iterations: 8
-  max_cost_usd: 12.0
-  max_duration_minutes: 45
-  on_success: open_pr
-budget:
-  max_tokens_per_iteration: 80000
-journey_stage: skill
-tags:
-  - performance
-  - tier-2
+  - id: "max_attempts"
+    condition: "attempt_count >= 8"
+    action: "stop_and_report"
+  - id: "budget_exhausted"
+    condition: "cost_usd >= 12"
+    action: "stop_and_report"
+  - id: "same_failure_repeated"
+    condition: "same verifier failure twice consecutively"
+    action: "stop_and_report"
+
+rollback:
+  strategy: "git"
+  command: "git checkout -- <changed-files>"

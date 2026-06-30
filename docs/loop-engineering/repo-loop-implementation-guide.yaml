@@ -1,0 +1,250 @@
+{
+  "schema_version": "1.0.0",
+  "name": "repo_loop_engineering_implementation_guide",
+  "generated_at": "2026-06-28",
+  "purpose": "Define a repo-standard method for building, validating, and operating self-improving agentic loops.",
+  "source_basis": "Uploaded Loop Engineering toolkit.md",
+  "core_rule": "Do not automate until success criteria, state, verification, and stop conditions are explicit.",
+  "repo_contract": {
+    "root_paths": [
+      "docs/loop-engineering/README.md",
+      "docs/loop-engineering/repo-loop-implementation-guide.yaml",
+      "docs/loop-engineering/repo-loop-audit-checklist.json",
+      "docs/loop-engineering/loop-config.schema.json",
+      "loops/_template/"
+    ],
+    "loop_paths": {
+      "required": [
+        "loops/<loop-name>/README.md",
+        "loops/<loop-name>/config.yaml",
+        "loops/<loop-name>/skill.md",
+        "loops/<loop-name>/verifier.py",
+        "loops/<loop-name>/state/"
+      ],
+      "optional": [
+        "loops/<loop-name>/tests/",
+        "loops/<loop-name>/fixtures/",
+        "loops/<loop-name>/docs/",
+        "loops/<loop-name>/state/attempts.jsonl",
+        "loops/<loop-name>/state/decisions.jsonl"
+      ]
+    }
+  },
+  "implementation_phases": [
+    {
+      "phase": 1,
+      "name": "trigger",
+      "goal": "Define how the loop starts.",
+      "required_fields": [
+        "trigger.type",
+        "trigger.source",
+        "trigger.schedule_or_event",
+        "trigger.input_contract"
+      ],
+      "acceptance": "A maintainer can identify exactly what starts the loop and what input shape is valid."
+    },
+    {
+      "phase": 2,
+      "name": "execution",
+      "goal": "Define what the agent or process does.",
+      "required_fields": [
+        "execution.skill_file",
+        "execution.allowed_tools",
+        "execution.forbidden_actions",
+        "execution.output_contract"
+      ],
+      "acceptance": "A coding agent can run the loop without rewriting its mission or expanding scope."
+    },
+    {
+      "phase": 3,
+      "name": "verification",
+      "goal": "Define independent success tests.",
+      "required_fields": [
+        "verification.tier",
+        "verification.criteria",
+        "verification.verifier_command",
+        "verification.failure_response"
+      ],
+      "acceptance": "Success can be confirmed without trusting the agent's own claim."
+    },
+    {
+      "phase": 4,
+      "name": "state_memory",
+      "goal": "Persist attempts, results, failures, and improvements.",
+      "required_fields": [
+        "state.path",
+        "state.format",
+        "state.write_policy",
+        "state.retention_policy"
+      ],
+      "acceptance": "Future attempts can learn from prior attempts without relying on chat history."
+    }
+  ],
+  "success_criteria_tiers": [
+    {
+      "tier": 1,
+      "name": "deterministic",
+      "examples": [
+        "tests pass",
+        "file exists",
+        "schema validates",
+        "exit code 0"
+      ],
+      "preferred": true
+    },
+    {
+      "tier": 2,
+      "name": "numeric",
+      "examples": [
+        "latency < 500ms",
+        "coverage >= 85%",
+        "error rate < 1%"
+      ],
+      "preferred": true
+    },
+    {
+      "tier": 3,
+      "name": "bounded_semantic",
+      "examples": [
+        "contains required sections",
+        "no banned phrases",
+        "citations present"
+      ],
+      "preferred": true
+    },
+    {
+      "tier": 4,
+      "name": "human_review",
+      "examples": [
+        "maintainer approves",
+        "coach reviews tone"
+      ],
+      "preferred": false
+    },
+    {
+      "tier": 5,
+      "name": "vague_preference",
+      "examples": [
+        "make it better",
+        "looks good",
+        "feels right"
+      ],
+      "preferred": false,
+      "promotion_allowed": false
+    }
+  ],
+  "state_patterns": [
+    {
+      "pattern": "jsonl_attempt_log",
+      "use_when": "Every loop attempt needs timestamped outcome history.",
+      "required_fields": [
+        "attempt_id",
+        "timestamp",
+        "input_ref",
+        "action_summary",
+        "verifier_result",
+        "next_adjustment"
+      ]
+    },
+    {
+      "pattern": "git_diff_snapshot",
+      "use_when": "Loop modifies files.",
+      "required_fields": [
+        "base_commit",
+        "changed_files",
+        "diff_summary",
+        "rollback_plan"
+      ]
+    },
+    {
+      "pattern": "rag_memory",
+      "use_when": "Loop benefits from prior examples or decisions.",
+      "required_fields": [
+        "source_refs",
+        "retrieval_query",
+        "used_context",
+        "excluded_context"
+      ]
+    },
+    {
+      "pattern": "budget_ledger",
+      "use_when": "Loop spends tokens, money, API calls, or time.",
+      "required_fields": [
+        "budget_type",
+        "limit",
+        "used",
+        "remaining",
+        "stop_threshold"
+      ]
+    }
+  ],
+  "stop_conditions": [
+    "max_attempts_reached",
+    "budget_exhausted",
+    "same_failure_repeated",
+    "verification_regression",
+    "unsafe_or_forbidden_action_requested",
+    "missing_required_input",
+    "external_dependency_unavailable"
+  ],
+  "anti_patterns": [
+    {
+      "id": "auto_without_verification",
+      "description": "Loop runs but no independent verifier exists.",
+      "severity": "critical"
+    },
+    {
+      "id": "chat_history_as_state",
+      "description": "Loop relies on conversational memory instead of repo state files.",
+      "severity": "critical"
+    },
+    {
+      "id": "infinite_retry",
+      "description": "Loop retries without max attempts, budget, or repeated-failure detection.",
+      "severity": "critical"
+    },
+    {
+      "id": "tool_scope_creep",
+      "description": "Agent adds tools or expands scope while executing.",
+      "severity": "high"
+    },
+    {
+      "id": "vague_success",
+      "description": "Success criteria use subjective phrases without measurable checks.",
+      "severity": "high"
+    }
+  ],
+  "promotion_gates": [
+    {
+      "gate": "design",
+      "must_pass": [
+        "loop justification",
+        "clear trigger",
+        "clear output contract"
+      ]
+    },
+    {
+      "gate": "implementation",
+      "must_pass": [
+        "skill exists",
+        "verifier exists",
+        "state path exists"
+      ]
+    },
+    {
+      "gate": "staging",
+      "must_pass": [
+        "dry run completed",
+        "audit has zero critical failures"
+      ]
+    },
+    {
+      "gate": "production",
+      "must_pass": [
+        "budget controls",
+        "rollback plan",
+        "owner documented"
+      ]
+    }
+  ]
+}

@@ -18,5 +18,7 @@ jobs:
           - loops/content-improver
     steps:
       - uses: actions/checkout@v4
-      - name: Audit ${{ matrix.loop }}
+      - name: Repo loop standard audit
+        run: python3 docs/loop-engineering/repo-loop-audit-runner.py --repo . --json
+      - name: Per-loop audit ${{ matrix.loop }}
         run: python3 scripts/loop-audit.py ${{ matrix.loop }} --json

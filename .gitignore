@@ -50,3 +50,5 @@ loops/*/state/attempts.jsonl
 loops/*/state/*.jsonl
 loops/*/state/progress.md
 !loops/*/state/.gitkeep
+!loops/example-python-runtime-optimizer/state/attempts.jsonl
+docs/loop-engineering/audit-results/latest.json

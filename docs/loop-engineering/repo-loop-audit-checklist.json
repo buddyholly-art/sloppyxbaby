@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_version": "1.0.0",
+  "name": "repo_loop_audit_checklist",
+  "generated_at": "2026-06-28",
+  "scoring": {
+    "critical_failure": -10,
+    "high_failure": -5,
+    "medium_failure": -2,
+    "low_failure": -1,
+    "pass": 1,
+    "promotion_threshold": {
+      "production": {
+        "critical_failures": 0,
+        "minimum_score": 80
+      },
+      "staging": {
+        "critical_failures": 0,
+        "minimum_score": 65
+      },
+      "draft": {
+        "critical_failures": 0,
+        "minimum_score": 40
+      }
+    }
+  },
+  "checks": [
+    {
+      "id": "repo.standard_files.present",
+      "category": "repo_standard",
+      "severity": "critical",
+      "description": "Repo contains the loop engineering guide, checklist, schema, and template.",
+      "how_to_verify": [
+        "Check docs/loop-engineering/README.md",
+        "Check docs/loop-engineering/repo-loop-implementation-guide.yaml",
+        "Check docs/loop-engineering/repo-loop-audit-checklist.json",
+        "Check docs/loop-engineering/loop-config.schema.json",
+        "Check loops/_template/"
+      ],
+      "pass_condition": "All required standard files and template directory exist."
+    },
+    {
+      "id": "loop.justification.explicit",
+      "category": "loop_justification",
+      "severity": "high",
+      "description": "Each loop states why a loop is needed instead of a one-shot script or manual checklist.",
+      "how_to_verify": [
+        "Open loops/<name>/README.md or config.yaml",
+        "Find justification field"
+      ],
+      "pass_condition": "Justification names recurrence, measurable value, and why state improves future attempts."
+    },
+    {
+      "id": "loop.trigger.defined",
+      "category": "trigger",
+      "severity": "critical",
+      "description": "Each loop has an explicit trigger.",
+      "how_to_verify": [
+        "Inspect config trigger.type/source/schedule_or_event/input_contract"
+      ],
+      "pass_condition": "Trigger source and valid input contract are defined."
+    },
+    {
+      "id": "loop.execution.bounded",
+      "category": "execution",
+      "severity": "critical",
+      "description": "Execution has a bounded skill, allowed tools, forbidden actions, and output contract.",
+      "how_to_verify": [
+        "Inspect config execution block",
+        "Inspect skill.md"
+      ],
+      "pass_condition": "Agent cannot expand scope without editing config."
+    },
+    {
+      "id": "loop.verifier.independent",
+      "category": "verification",
+      "severity": "critical",
+      "description": "A verifier independently evaluates success.",
+      "how_to_verify": [
+        "Check verifier.py exists",
+        "Check config verification.verifier_command"
+      ],
+      "pass_condition": "Verifier command can run separately from the agent."
+    },
+    {
+      "id": "loop.success_criteria.tiered",
+      "category": "verification",
+      "severity": "critical",
+      "description": "Success criteria use deterministic, numeric, or bounded semantic checks where possible.",
+      "how_to_verify": [
+        "Inspect verification.tier and verification.criteria"
+      ],
+      "pass_condition": "Tier is 1, 2, or 3 unless explicitly documented as human review."
+    },
+    {
+      "id": "loop.state.persistent",
+      "category": "state_memory",
+      "severity": "critical",
+      "description": "Loop writes persistent state to repo-controlled or configured storage.",
+      "how_to_verify": [
+        "Check state.path exists",
+        "Check state.write_policy"
+      ],
+      "pass_condition": "State directory exists and write policy defines what gets recorded."
+    },
+    {
+      "id": "loop.state.attempt_history",
+      "category": "state_memory",
+      "severity": "high",
+      "description": "Attempt history records inputs, outputs, verification, failures, and next adjustment.",
+      "how_to_verify": [
+        "Inspect attempts.jsonl or equivalent"
+      ],
+      "pass_condition": "Attempt records include timestamp, result, verifier output, and next adjustment."
+    },
+    {
+      "id": "loop.stop_conditions.present",
+      "category": "safeguards",
+      "severity": "critical",
+      "description": "Loop has stop conditions for max attempts, budget, repeated failure, and missing input.",
+      "how_to_verify": [
+        "Inspect config stop_conditions"
+      ],
+      "pass_condition": "At least max_attempts and one budget or repeated-failure stop condition are defined."
+    },
+    {
+      "id": "loop.budget_controls.present",
+      "category": "safeguards",
+      "severity": "high",
+      "description": "Loop limits token, money, time, API, or compute usage.",
+      "how_to_verify": [
+        "Inspect config budgets"
+      ],
+      "pass_condition": "At least one budget is defined with unit, limit, and stop threshold."
+    },
+    {
+      "id": "loop.failure_response.safe",
+      "category": "safeguards",
+      "severity": "high",
+      "description": "Failure response logs evidence and stops or escalates instead of thrashing.",
+      "how_to_verify": [
+        "Inspect verification.failure_response and stop_conditions"
+      ],
+      "pass_condition": "Repeated failures stop the loop and produce actionable evidence."
+    },
+    {
+      "id": "loop.rollback.defined",
+      "category": "repo_safety",
+      "severity": "medium",
+      "description": "File-modifying loops document rollback.",
+      "how_to_verify": [
+        "Inspect config rollback block or README"
+      ],
+      "pass_condition": "Rollback identifies backup path, git command, or restore procedure."
+    },
+    {
+      "id": "loop.owner.status",
+      "category": "documentation",
+      "severity": "medium",
+      "description": "Loop has owner, status, and promotion level.",
+      "how_to_verify": [
+        "Inspect config metadata and README"
+      ],
+      "pass_condition": "Owner, status, and lifecycle stage are present."
+    },
+    {
+      "id": "loop.no_vague_success",
+      "category": "verification",
+      "severity": "high",
+      "description": "Success criteria avoid vague phrases without measurable translation.",
+      "how_to_verify": [
+        "Search config and README for better/good/clean/improve without concrete checks"
+      ],
+      "pass_condition": "Subjective goals are translated into explicit checks."
+    },
+    {
+      "id": "loop.no_chat_history_state",
+      "category": "state_memory",
+      "severity": "critical",
+      "description": "Loop does not depend on chat history as operational memory.",
+      "how_to_verify": [
+        "Inspect skill.md and config state block"
+      ],
+      "pass_condition": "Operational memory is persisted to files/database, not chat only."
+    }
+  ]
+}

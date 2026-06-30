@@ -10,70 +10,72 @@ last_reviewed: 2026-06-30
 canonical: true
 related_docs:
   - docs/loop-engineering/implementation-guide.md
+  - docs/loop-engineering/repo-loop-implementation-guide.yaml
   - docs/LLM_CONTEXT_ENGINEERING_TACTICS.md
   - loops/README.md
 ---
 
 # Loop Engineering Toolkit
 
-Production-ready guidance for building **self-improving agent loops** — human-readable playbooks plus machine-auditable schemas. SloppyXBaby ships this toolkit in-repo so agents and humans share the same contract.
+Production-ready guidance for building **self-improving agent loops** — human-readable playbooks plus machine-auditable schemas. Installed from the [repo-loop-engineering-kit](combined-guide.md) (source: `~/Downloads/Loop Engineering/repo-loop-engineering-kit.zip`).
 
-## What is a loop?
+## Audit the repo
 
-A loop is not "run the agent again." It is a closed system:
+```bash
+python3 docs/loop-engineering/repo-loop-audit-runner.py --repo .
+# Per-loop deep audit (optional):
+python3 scripts/loop-audit.py loops/code-performance-optimizer
+```
 
-**Trigger → Skill (execution) → Verification → State/Memory → repeat**
+Results: `docs/loop-engineering/audit-results/latest.json`
 
-Without clear success criteria and persisted state, loops become expensive retry machines that never improve.
-
-## Deliverables in this folder
+## Deliverables
 
 | File | Type | Purpose |
 |------|------|---------|
-| [implementation-guide.md](./implementation-guide.md) | Guide | Full playbook: 4 phases, hero's journey, success-criteria tiers, decision frameworks, anti-patterns |
-| [loop-audit-checklist.json](./loop-audit-checklist.json) | Machine-readable | 7 categories, 25+ checks with severity, verification steps, scoring |
-| [loop-config.schema.json](./loop-config.schema.json) | JSON Schema | Validate `loops/<name>/config.yaml` |
-| [examples/python-runtime-optimizer/](./examples/python-runtime-optimizer/) | Example | Tier-2 optimization loop (config + skill stub) |
-| [agentic/claude-code-setup.md](./agentic/claude-code-setup.md) | Agentic | Routines + `/goal` + skills + repo state (2026 Claude Code pattern) |
-| [agentic/langgraph-self-improving-loop.py](./agentic/langgraph-self-improving-loop.py) | Agentic | Runnable LangGraph graph with persistence and stop conditions |
+| [implementation-guide.md](./implementation-guide.md) | Human guide | 4 phases, hero's journey, tiers, anti-patterns |
+| [repo-loop-implementation-guide.yaml](./repo-loop-implementation-guide.yaml) | **Machine-readable** | Repo contract, phases, tiers, state patterns, promotion gates |
+| [repo-loop-audit-checklist.json](./repo-loop-audit-checklist.json) | **Machine-readable** | Canonical audit checks for CI and agents |
+| [loop-audit-checklist.json](./loop-audit-checklist.json) | **Machine-readable** | Extended per-check scoring (25+ items) |
+| [loop-config.schema.json](./loop-config.schema.json) | JSON Schema | Validates `loops/<name>/config.yaml` |
+| [repo-loop-audit-runner.py](./repo-loop-audit-runner.py) | Script | Zero-dep repo + loop audit |
+| [AGENT_IMPLEMENTATION_PROMPT.md](./AGENT_IMPLEMENTATION_PROMPT.md) | Agent prompt | Paste into coding agents to install/verify kit |
+| [install.sh](./install.sh) | Installer | Copy kit into another repo |
+| [combined-guide.md](./combined-guide.md) | Single-file export | Full kit in one markdown doc |
+| [agentic/](./agentic/) | Agentic setup | Claude Code Routines + LangGraph examples |
 
-## Drop-in `loops/` folder
+## `loops/` folder (repo root)
 
-Copy-ready loop instances live at the **repo root**: [`../../loops/`](../../loops/).
-
-```
-loops/
-├── README.md
-├── TEMPLATE.md
-├── code-performance-optimizer/   # Tier 2 — deterministic metrics
-└── content-improver/             # Tier 3–4 — hybrid + human gate
-```
-
-Each loop includes `config.yaml`, `skill.md`, `verifier.py`, and `state/` for `attempts.jsonl`.
+| Path | Purpose |
+|------|---------|
+| `loops/_template/` | Copy for every new loop |
+| `loops/example-python-runtime-optimizer/` | Kit reference (Tier 2, sample `attempts.jsonl`) |
+| `loops/code-performance-optimizer/` | SloppyXBaby hot-path optimizer |
+| `loops/content-improver/` | Hybrid copy/anti-slop loop |
+| `loops/TEMPLATE.md` | Markdown scaffold (legacy; prefer `_template/`) |
 
 ## Quick start
 
-1. Read [implementation-guide.md](./implementation-guide.md).
-2. Copy `loops/TEMPLATE.md` → `loops/<your-loop>/`.
-3. Author `config.yaml` and validate against [loop-config.schema.json](./loop-config.schema.json).
-4. Run the audit:
+1. Copy `loops/_template` → `loops/<your-loop>/`
+2. Fill `config.yaml` (validated against schema)
+3. Write `skill.md` + `verifier.py`
+4. Run audit before promoting:
 
 ```bash
-python3 scripts/loop-audit.py loops/<your-loop>
+python3 docs/loop-engineering/repo-loop-audit-runner.py --repo .
 ```
-
-5. Wire a trigger (GitHub Actions, Claude Routine, cron, PR bot).
 
 ## For agents
 
-When building or reviewing a loop, load:
+Load in order:
 
-1. `implementation-guide.md` — rules of the road
-2. `loop-audit-checklist.json` — pass/fail gates
-3. The target loop's `config.yaml` + `skill.md`
+1. `AGENT_IMPLEMENTATION_PROMPT.md` — install/verify contract
+2. `repo-loop-implementation-guide.yaml` — machine-readable rules
+3. `implementation-guide.md` — narrative playbook
+4. Target loop's `skill.md` + `config.yaml`
 
-Point coding agents (Claude Code, Cursor, Hermes) at [agentic/claude-code-setup.md](./agentic/claude-code-setup.md) for production scheduling patterns.
+Agentic wiring: [agentic/claude-code-setup.md](./agentic/claude-code-setup.md)
 
-## Core principle (from the transcript)
+## Core rule
 
-> Design the loop — don't just prompt. Most failures come from jumping to automation without measurable success criteria or state that compounds learning.
+> Do not automate until success criteria, state, verification, and stop conditions are explicit.

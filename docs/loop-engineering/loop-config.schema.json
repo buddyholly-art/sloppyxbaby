@@ -1,150 +1,233 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://sloppyxbaby.com/schemas/loop-config.schema.json",
-  "title": "Loop Engineering Config",
-  "description": "Schema for loops/<name>/config.yaml. Agents and CI can validate or generate loop definitions against this file.",
+  "$id": "https://example.local/schemas/loop-config.schema.json",
+  "title": "Loop Config",
   "type": "object",
-  "required": ["name", "version", "description", "success_criteria", "phases", "stop_conditions"],
-  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "metadata",
+    "trigger",
+    "execution",
+    "verification",
+    "state",
+    "stop_conditions"
+  ],
+  "additionalProperties": true,
   "properties": {
-    "name": {
-      "type": "string",
-      "pattern": "^[a-z0-9][a-z0-9-]*$",
-      "description": "Stable loop identifier (kebab-case)."
+    "schema_version": {
+      "type": "string"
     },
-    "version": {
-      "type": "string",
-      "pattern": "^\\d+\\.\\d+\\.\\d+$"
-    },
-    "description": {
-      "type": "string",
-      "minLength": 20
-    },
-    "owner": {
-      "type": "string",
-      "description": "Human or team accountable for the loop."
-    },
-    "tier": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 5,
-      "description": "Dominant success-criteria tier (1=deterministic, 5=fully subjective)."
-    },
-    "success_criteria": {
+    "metadata": {
       "type": "object",
-      "required": ["tier", "statement", "metrics"],
-      "additionalProperties": false,
+      "required": [
+        "name",
+        "owner",
+        "status",
+        "justification"
+      ],
       "properties": {
-        "tier": { "type": "integer", "minimum": 1, "maximum": 5 },
-        "statement": {
+        "name": {
           "type": "string",
-          "description": "Single sentence a verifier can evaluate."
+          "pattern": "^[a-z0-9][a-z0-9_-]*$"
         },
-        "metrics": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "object",
-            "required": ["id", "type", "target"],
-            "additionalProperties": false,
-            "properties": {
-              "id": { "type": "string" },
-              "type": {
-                "type": "string",
-                "enum": ["boolean", "numeric", "threshold", "regex", "llm_judge", "human_gate"]
-              },
-              "target": {},
-              "unit": { "type": "string" },
-              "description": { "type": "string" }
-            }
-          }
+        "owner": {
+          "type": "string"
         },
-        "human_gate": {
-          "type": "object",
-          "properties": {
-            "required": { "type": "boolean" },
-            "prompt": { "type": "string" }
-          }
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "staging",
+            "production",
+            "deprecated"
+          ]
+        },
+        "promotion_level": {
+          "type": "string",
+          "enum": [
+            "design",
+            "implementation",
+            "staging",
+            "production"
+          ]
+        },
+        "justification": {
+          "type": "string",
+          "minLength": 20
         }
       }
     },
-    "phases": {
+    "trigger": {
       "type": "object",
-      "required": ["trigger", "execution", "verification", "state"],
-      "additionalProperties": false,
+      "required": [
+        "type",
+        "source",
+        "schedule_or_event",
+        "input_contract"
+      ],
       "properties": {
-        "trigger": {
-          "type": "object",
-          "required": ["type"],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": ["manual", "cron", "github_event", "webhook", "pr_comment", "routine"]
-            },
-            "schedule": { "type": "string" },
-            "event": { "type": "string" },
-            "entrypoint": { "type": "string" }
+        "type": {
+          "type": "string",
+          "enum": [
+            "manual",
+            "scheduled",
+            "event",
+            "condition_watch",
+            "webhook",
+            "cli"
+          ]
+        },
+        "source": {
+          "type": "string"
+        },
+        "schedule_or_event": {
+          "type": "string"
+        },
+        "input_contract": {
+          "type": "object"
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "required": [
+        "skill_file",
+        "allowed_tools",
+        "forbidden_actions",
+        "output_contract"
+      ],
+      "properties": {
+        "skill_file": {
+          "type": "string"
+        },
+        "allowed_tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         },
-        "execution": {
-          "type": "object",
-          "required": ["skill_path"],
-          "properties": {
-            "skill_path": { "type": "string" },
-            "model_tier": {
-              "type": "string",
-              "enum": ["fast", "balanced", "reasoning"]
-            },
-            "max_turns_per_iteration": { "type": "integer", "minimum": 1 }
+        "forbidden_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         },
-        "verification": {
-          "type": "object",
-          "required": ["verifier_path"],
-          "properties": {
-            "verifier_path": { "type": "string" },
-            "timeout_seconds": { "type": "integer", "minimum": 1 }
+        "output_contract": {
+          "type": "object"
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "required": [
+        "tier",
+        "criteria",
+        "verifier_command",
+        "failure_response"
+      ],
+      "properties": {
+        "tier": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "criteria": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "type",
+              "expected"
+            ]
           }
         },
-        "state": {
-          "type": "object",
-          "required": ["attempts_path"],
-          "properties": {
-            "attempts_path": { "type": "string" },
-            "rag_index": { "type": "string" },
-            "progress_doc": { "type": "string" }
+        "verifier_command": {
+          "type": "string"
+        },
+        "failure_response": {
+          "type": "string"
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "required": [
+        "path",
+        "format",
+        "write_policy",
+        "retention_policy"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "jsonl",
+            "json",
+            "sqlite",
+            "markdown",
+            "external"
+          ]
+        },
+        "write_policy": {
+          "type": "string"
+        },
+        "retention_policy": {
+          "type": "string"
+        }
+      }
+    },
+    "budgets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "unit",
+          "limit",
+          "stop_threshold"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "stop_threshold": {
+            "type": "number"
           }
         }
       }
     },
     "stop_conditions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "condition",
+          "action"
+        ]
+      }
+    },
+    "rollback": {
       "type": "object",
-      "required": ["max_iterations"],
       "properties": {
-        "max_iterations": { "type": "integer", "minimum": 1 },
-        "max_cost_usd": { "type": "number", "minimum": 0 },
-        "max_duration_minutes": { "type": "integer", "minimum": 1 },
-        "on_success": {
-          "type": "string",
-          "enum": ["stop", "continue_improve", "open_pr"]
+        "strategy": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string"
         }
       }
-    },
-    "budget": {
-      "type": "object",
-      "properties": {
-        "max_tokens_per_iteration": { "type": "integer" },
-        "preferred_model": { "type": "string" }
-      }
-    },
-    "journey_stage": {
-      "type": "string",
-      "enum": ["manual", "skill", "automate", "self_improve"],
-      "description": "Where this loop sits on the implementation journey."
-    },
-    "tags": {
-      "type": "array",
-      "items": { "type": "string" }
     }
   }
 }

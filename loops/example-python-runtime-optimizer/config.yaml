@@ -1,0 +1,84 @@
+schema_version: "1.0.0"
+
+metadata:
+  name: "example-python-runtime-optimizer"
+  owner: "repo-maintainer"
+  status: "staging"
+  promotion_level: "staging"
+  justification: "Runtime optimization benefits from repeated measured attempts because each attempt can compare benchmark data, preserve correctness, and learn from prior failed changes."
+
+trigger:
+  type: "manual"
+  source: "cli"
+  schedule_or_event: "operator requests optimization for a target Python file"
+  input_contract:
+    required:
+      - "target_file"
+      - "benchmark_command"
+      - "test_command"
+
+execution:
+  skill_file: "skill.md"
+  allowed_tools:
+    - "shell"
+    - "filesystem"
+    - "python"
+  forbidden_actions:
+    - "delete source files"
+    - "change public API without tests"
+    - "disable tests"
+    - "skip verifier"
+  output_contract:
+    required_files:
+      - "state/attempts.jsonl"
+    required_report_fields:
+      - "baseline_runtime_ms"
+      - "new_runtime_ms"
+      - "tests_passed"
+      - "changed_files"
+
+verification:
+  tier: 2
+  criteria:
+    - id: "tests_pass"
+      type: "deterministic"
+      expected: "test command exits 0"
+    - id: "runtime_improves"
+      type: "numeric"
+      expected: "new_runtime_ms <= baseline_runtime_ms * 0.90"
+    - id: "attempt_logged"
+      type: "deterministic"
+      expected: "state/attempts.jsonl contains at least one valid JSONL record"
+  verifier_command: "python3 loops/example-python-runtime-optimizer/verifier.py"
+  failure_response: "Log benchmark/test evidence and stop if the same failure repeats twice."
+
+state:
+  path: "loops/example-python-runtime-optimizer/state"
+  format: "jsonl"
+  write_policy: "Append one record per optimization attempt with benchmark, test, diff summary, result, and next adjustment."
+  retention_policy: "Keep attempts permanently for optimization learning."
+
+budgets:
+  - name: "attempts"
+    unit: "count"
+    limit: 5
+    stop_threshold: 5
+  - name: "runtime_regression"
+    unit: "percent"
+    limit: 5
+    stop_threshold: 5
+
+stop_conditions:
+  - id: "max_attempts"
+    condition: "attempt_count >= 5"
+    action: "stop_and_report"
+  - id: "tests_fail_twice"
+    condition: "same test failure appears twice consecutively"
+    action: "revert_and_stop"
+  - id: "runtime_regresses"
+    condition: "runtime worsens by more than 5 percent"
+    action: "revert_and_stop"
+
+rollback:
+  strategy: "git"
+  command: "git checkout -- <changed-files>"

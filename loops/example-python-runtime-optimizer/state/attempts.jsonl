@@ -1,0 +1,1 @@
+{"attempt_id": "example-001", "timestamp": "2026-06-28T00:00:00Z", "input_ref": "examples/slow_function.py", "action_summary": "Replaced repeated list scan with dictionary lookup.", "baseline_runtime_ms": 1200, "new_runtime_ms": 980, "tests_passed": true, "verifier_result": "pass", "next_adjustment": "No adjustment needed; promote if repeated benchmark confirms."}

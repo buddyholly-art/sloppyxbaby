@@ -1,0 +1,69 @@
+schema_version: "1.0.0"
+
+metadata:
+  name: "replace_me"
+  owner: "TBD"
+  status: "draft"
+  promotion_level: "design"
+  justification: "Explain why this must be a loop rather than a one-shot script. Include recurrence, measurable value, and how state improves future attempts."
+
+trigger:
+  type: "manual"
+  source: "cli"
+  schedule_or_event: "operator runs command"
+  input_contract:
+    required:
+      - "target_path"
+
+execution:
+  skill_file: "skill.md"
+  allowed_tools:
+    - "shell"
+    - "filesystem"
+  forbidden_actions:
+    - "delete files without backup"
+    - "modify secrets"
+    - "call paid APIs without explicit budget"
+  output_contract:
+    required_files:
+      - "state/attempts.jsonl"
+    required_report_fields:
+      - "status"
+      - "changed_files"
+      - "verification_result"
+
+verification:
+  tier: 1
+  criteria:
+    - id: "required_files_exist"
+      type: "deterministic"
+      expected: "README.md, config.yaml, skill.md, verifier.py, and state/ exist"
+  verifier_command: "python3 loops/replace_me/verifier.py"
+  failure_response: "Write evidence to state/attempts.jsonl and stop after max_attempts."
+
+state:
+  path: "loops/replace_me/state"
+  format: "jsonl"
+  write_policy: "Append one attempt record per run with timestamp, input, actions, verifier result, and next adjustment."
+  retention_policy: "Keep all attempts unless archived by maintainer."
+
+budgets:
+  - name: "attempts"
+    unit: "count"
+    limit: 3
+    stop_threshold: 3
+
+stop_conditions:
+  - id: "max_attempts"
+    condition: "attempt_count >= 3"
+    action: "stop_and_report"
+  - id: "missing_required_input"
+    condition: "input_contract is not satisfied"
+    action: "stop_and_report"
+  - id: "same_failure_repeated"
+    condition: "same verifier failure appears twice consecutively"
+    action: "stop_and_report"
+
+rollback:
+  strategy: "git"
+  command: "git checkout -- <changed-files>"

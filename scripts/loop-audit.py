@@ -24,13 +24,16 @@ def load_yaml_config(loop_dir: Path) -> dict | None:
     config_path = loop_dir / "config.yaml"
     if not config_path.exists():
         return None
+    text = config_path.read_text()
     try:
         import yaml  # type: ignore
+        parsed = yaml.safe_load(text) or {}
+        if isinstance(parsed, dict):
+            parsed["_raw"] = text
+            return parsed
     except ImportError:
-        # Minimal parse without PyYAML: enough for presence checks
-        text = config_path.read_text()
-        return {"_raw": text, "name": loop_dir.name}
-    return yaml.safe_load(config_path.read_text())
+        pass
+    return {"_raw": text, "name": loop_dir.name}
 
 
 def check_file(loop_dir: Path, rel: str) -> bool:
@@ -72,11 +75,13 @@ def audit_loop(loop_dir: Path) -> dict:
 
     # Structural checks mapped to checklist IDs
     add("LJ-03", "medium", config is not None, "config.yaml missing" if not config else "")
+    raw = (config or {}).get("_raw", "")
     sc_ok = config is not None and (
         "success_criteria" in (config or {})
-        or "success_criteria" in (config or {}).get("_raw", "")
+        or "verification:" in raw
+        or "verifier_command:" in raw
     )
-    add("SC-01", "critical", sc_ok, "success_criteria")
+    add("SC-01", "critical", sc_ok, "success_criteria or verification block")
     add("SC-03", "critical", check_file(loop_dir, "verifier.py"), "verifier.py")
     add("SC-04", "high", run_verifier_dry(loop_dir), "verifier dry-run output")
     add("SM-01", "critical", check_file(loop_dir, "state") or check_file(loop_dir, "state/.gitkeep"), "state/")

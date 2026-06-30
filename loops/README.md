@@ -18,13 +18,13 @@ Read the full playbook: [docs/loop-engineering/implementation-guide.md](../docs/
 ## Add a new loop
 
 ```bash
-cp -r TEMPLATE.md my-new-loop/README.md
-mkdir -p my-new-loop/state && touch my-new-loop/state/.gitkeep
-# Fill config.yaml, skill.md, verifier.py
-python3 ../scripts/loop-audit.py my-new-loop
+cp -r _template my-new-loop
+# Edit README.md, config.yaml, skill.md, verifier.py
+python3 docs/loop-engineering/repo-loop-audit-runner.py --repo .
+python3 scripts/loop-audit.py my-new-loop
 ```
 
-Or copy an example folder and rename.
+Or copy an example folder (`example-python-runtime-optimizer`, `code-performance-optimizer`) and rename.
 
 ## Implementation journey
 
