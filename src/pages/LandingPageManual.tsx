@@ -116,11 +116,6 @@ export default function LandingPageManual() {
 
   const [quoteIndex, setQuoteIndex] = useState(0);
 
-  const [leadEmail, setLeadEmail] = useState('');
-  const [leadLoading, setLeadLoading] = useState(false);
-  const [leadSuccess, setLeadSuccess] = useState(false);
-  const [leadError, setLeadError] = useState('');
-
   const quoteTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Hero entrance + scroll reveal
@@ -284,29 +279,6 @@ export default function LandingPageManual() {
       setTimeout(() => {
         if (btn) btn.style.transform = '';
       }, 150);
-    }
-  };
-
-  const submitLead = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const email = leadEmail.trim();
-    if (!email) return;
-    setLeadLoading(true);
-    setLeadError('');
-    setLeadSuccess(false);
-    try {
-      const res = await fetch('/api/lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: '9-step-framework', tag: 'repo-structure-kit' }),
-      });
-      if (!res.ok) throw new Error('lead endpoint unavailable');
-      setLeadSuccess(true);
-      setLeadEmail('');
-    } catch (err: any) {
-      setLeadError(err.message || 'Could not subscribe. Please try again.');
-    } finally {
-      setLeadLoading(false);
     }
   };
 
@@ -762,31 +734,42 @@ OUTPUT: Minimal diff + rollback notes`}</pre>
                 ))}
               </div>
               <div className="lead-card">
-                <h3 className="m-0 mb-1.5 text-[#f8fafc]">Get the repo structure kit</h3>
-                <p className="m-0 text-[#94a3b8] text-[15px]">We'll email you the framework + a Loop Engineering template. No spam.</p>
-                <form className="lead-form" onSubmit={submitLead}>
-                  <label className="sr-only" htmlFor="leadEmail">Email address</label>
-                  <input
-                    id="leadEmail"
-                    className="lead-input"
-                    type="email"
-                    placeholder="you@example.com"
-                    required
-                    value={leadEmail}
-                    onChange={(e) => setLeadEmail(e.target.value)}
-                    disabled={leadLoading}
-                  />
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-white bg-sage hover:bg-sage-glow transition-colors border-0 cursor-pointer active:scale-[0.98] disabled:opacity-70"
-                    disabled={leadLoading}
+                <h3 className="m-0 mb-1.5 text-[#f8fafc]">Repo structure kit — instant access</h3>
+                <p className="m-0 text-[#94a3b8] text-[15px]">
+                  No email gate. Open the framework, loop templates, and self-audit below.
+                </p>
+                <div className="flex flex-col sm:flex-row flex-wrap gap-3 mt-5">
+                  <a
+                    href="/docs/loop-engineering/"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-white bg-sage hover:bg-sage-glow transition-colors no-underline active:scale-[0.98]"
                   >
-                    {leadLoading ? 'Sending…' : 'Get the kit'}
-                  </button>
-                </form>
-                {leadSuccess && <div className="lead-success visible">Kit sent. Check your inbox.</div>}
-                {leadError && <div className="text-pink text-sm mt-3">{leadError}</div>}
-                <p className="lead-note">Prefer to audit your repo first? The framework includes a machine-readable checklist.</p>
+                    Loop Engineering toolkit
+                  </a>
+                  <a
+                    href="/loops/README.md"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-surface hover:bg-surface-solid shadow-[inset_0_0_0_1px_var(--color-hairline-strong)] transition-colors no-underline active:scale-[0.98]"
+                  >
+                    Loops template
+                  </a>
+                  <Link
+                    to="/the-code"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all no-underline active:scale-[0.98]"
+                  >
+                    The Builder&apos;s Code
+                  </Link>
+                </div>
+                <p className="lead-note m-0 mt-4">
+                  Full repo on{' '}
+                  <a
+                    href="https://github.com/buddyholly-art/sloppyxbaby"
+                    className="text-sage-glow no-underline hover:text-sage"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    GitHub
+                  </a>
+                  {' '}— clone for configs, verifiers, and audit scripts.
+                </p>
               </div>
             </div>
           </div>
