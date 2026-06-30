@@ -1,106 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import CoachHypeLesson from '../components/CoachHypeLesson';
+import { BUILDER_CONCEPTS, COACH_HYPE_TAGLINE } from '../lib/coachHype';
 
 type AuditAnswer = 'yes' | 'partial' | 'no' | null;
-
-const CONCEPTS = [
-  {
-    id: 1,
-    name: 'Externalized Memory',
-    source: 'Alan Baddeley · Working Memory Model',
-    accent: 'Memory Vault',
-    body: 'Your working memory is smaller than the model context window. Offload task state, specs, and session headers into durable external stores.',
-    question: 'Can you resume your last coding task in under 5 seconds without re-reading chat history?',
-  },
-  {
-    id: 2,
-    name: 'Executive Guardrails',
-    source: 'Russell Barkley · Executive Function',
-    accent: 'Impulsivity Shield',
-    body: 'ADHD is an executive function deficit. Guidance must be externalized, visual, and rollback-safe — not vibes and hope.',
-    question: 'Do your prompts enforce validation gates, error recovery, and reversible state before shipping?',
-  },
-  {
-    id: 3,
-    name: 'One Clear Next Step',
-    source: 'CAST UDL Guidelines',
-    accent: 'Intent Router',
-    body: 'Choice paralysis destroys action. Every surface should expose exactly one recommended default next step.',
-    question: 'Does your workspace show one obvious recommended action instead of a wall of equal options?',
-  },
-  {
-    id: 4,
-    name: 'Low-Arousal Surfaces',
-    source: 'Winnie Dunn · Sensory Processing',
-    accent: 'Soft Premium UI',
-    body: 'Flashing telemetry, alarm colors, and metric spam exhaust working memory. Calm surfaces preserve focus bandwidth.',
-    question: 'Are your tools free of urgent badges, fake stats, and high-arousal visual noise?',
-  },
-  {
-    id: 5,
-    name: 'CapEx Discipline',
-    source: 'Andrej Karpathy · TCO',
-    accent: 'SSOT Auditor',
-    body: 'Code is a liability: money (tokens), space (context weight), and maintenance (debugging debt). Every line must earn its keep.',
-    question: 'Do you audit new features for duplicate schemas, redundant files, and prompt bloat before building?',
-  },
-  {
-    id: 6,
-    name: 'OpEx Awareness',
-    source: 'Token economics',
-    accent: 'TCO Board',
-    body: 'Subscriptions compound. Track per-loop token cost, model tier routing, and whether a cheaper pass would suffice.',
-    question: 'Can you see what each agent loop costs before you run another spin?',
-  },
-  {
-    id: 7,
-    name: 'The Harness',
-    source: 'BYOK architecture',
-    accent: 'Bring Your Own Key',
-    body: 'You own the keys, routes, and upstream providers. The workspace supplies cognitive guardrails — not compute markups.',
-    question: 'Are your API keys local, rotatable, and routed by task tier instead of one default model?',
-  },
-  {
-    id: 8,
-    name: 'Agent Loop',
-    source: 'Loop Engineering',
-    accent: 'Trigger → Skill → Verify → State',
-    body: 'Every prompt is a loop, not a one-shot. Trigger the mess, compile with a skill, verify output, persist state for the next turn.',
-    question: 'Does your workflow store attempt history and score outputs instead of starting from zero each time?',
-  },
-  {
-    id: 9,
-    name: 'Lost-in-the-Middle',
-    source: 'Liu et al. · Context decay',
-    accent: 'Context positioning',
-    body: 'Attention peaks at the start and end of the context window. Critical constraints buried in the middle get forgotten.',
-    question: 'Are your hardest constraints placed at the top and repeated at the end of every prompt?',
-  },
-  {
-    id: 10,
-    name: 'Monotropism Channels',
-    source: 'Murray et al. · Autism attention',
-    accent: 'Single-thread focus',
-    body: 'Deep-focus brains run one intense channel at a time. Scatter tabs, parallel agents, and context switches multiply slop.',
-    question: 'Do you protect one active thread instead of juggling five half-finished agent sessions?',
-  },
-  {
-    id: 11,
-    name: 'Structure That Bends',
-    source: 'AuDHD design edict',
-    accent: 'Recommended paths',
-    body: 'Offer guided defaults without bossy imperatives. Scaffolding should feel like a ramp, not a cage.',
-    question: 'Can you override defaults without breaking the workflow or losing session state?',
-  },
-  {
-    id: 12,
-    name: 'Anti-Slop Invariants',
-    source: 'SloppyXBaby edicts',
-    accent: 'Visual + copy hygiene',
-    body: 'Ban nested cards, purple gradients, #6366f1 indigo, fake metrics, hero-number clichés, and ChatGPT-template voice.',
-    question: 'Would your last generated UI pass a slop scan — solid surfaces, honest copy, no AI-default tells?',
-  },
-] as const;
 
 const SCORE_LABELS: Record<string, { label: string; color: string }> = {
   high: { label: 'Thread held — ship with confidence', color: 'text-sage' },
@@ -119,11 +22,11 @@ export default function BuildersCodePage() {
   const [audited, setAudited] = useState(false);
 
   const result = useMemo(() => {
-    const scored = CONCEPTS.map((c) => scoreAnswer(answers[c.id] ?? null));
+    const scored = BUILDER_CONCEPTS.map((c) => scoreAnswer(answers[c.id] ?? null));
     const total = scored.reduce((a, b) => a + b, 0);
-    const max = CONCEPTS.length * 2;
+    const max = BUILDER_CONCEPTS.length * 2;
     const percent = Math.round((total / max) * 100);
-    const gaps = CONCEPTS.filter((c) => (answers[c.id] ?? 'no') === 'no' || answers[c.id] === 'partial');
+    const gaps = BUILDER_CONCEPTS.filter((c) => (answers[c.id] ?? 'no') === 'no' || answers[c.id] === 'partial');
     const tier = percent >= 75 ? 'high' : percent >= 45 ? 'mid' : 'low';
     return { percent, gaps, tier };
   }, [answers]);
@@ -151,19 +54,27 @@ export default function BuildersCodePage() {
       <main className="w-full max-w-[900px] mx-auto px-6 py-14 md:py-20">
         <span className="eyebrow">
           <span className="eyebrow-dot" />
-          12 concepts · runnable self-audit
+          Coach Hype · 12 concepts · self-audit
         </span>
         <h1 className="text-display mt-5">The Builder&apos;s Code</h1>
         <p className="text-lede mt-5">
-          Twelve evidence-based concepts for AuDHD builders who vibe-code with LLMs. Each maps to a cognitive analog —
-          working memory, executive function, monotropism, context decay — and a concrete SloppyXBaby surface.
+          Coach Hype teaches each concept with relatable setup, a controlled tangent, and a cited pivot — because AuDHD builders
+          deserve research-backed scaffolding, not motivational poster rhetoric.
         </p>
+        <p className="text-sm text-muted mt-3 font-[var(--font-mono)]">{COACH_HYPE_TAGLINE}</p>
         <p className="text-[15px] text-muted mt-4 leading-relaxed">
-          Answer honestly. The audit runs locally in your browser. No signup.
+          Answer honestly below. The audit runs locally in your browser. No signup.
         </p>
 
+        <CoachHypeLesson
+          hook="Welcome. I am not here to crush your goals. I am here because your LLM and your brain share the same bugs."
+          pivot="Twelve concepts. Twelve cognitive analogs. One workspace that externalizes what both systems keep dropping."
+          stat="LLM failure modes map onto ADHD cognitive science — six parallels from independent research."
+          cite="AuDHD ↔ LLM Cognitive Analogs · isomorphism thesis"
+        />
+
         <div className="mt-10 flex flex-col gap-5">
-          {CONCEPTS.map((concept) => (
+          {BUILDER_CONCEPTS.map((concept) => (
             <article
               key={concept.id}
               className="p-6 md:p-8 rounded-[var(--radius-core)] bg-surface-solid border border-hairline"
@@ -181,7 +92,10 @@ export default function BuildersCodePage() {
                 </span>
               </div>
               <p className="text-[15px] text-muted leading-relaxed">{concept.body}</p>
-              <p className="mt-4 text-[15px] font-medium text-ink">{concept.question}</p>
+
+              <CoachHypeLesson compact {...concept.coach} />
+
+              <p className="mt-5 text-[15px] font-medium text-ink">{concept.question}</p>
               <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label={`Audit: ${concept.name}`}>
                 {(['yes', 'partial', 'no'] as const).map((opt) => (
                   <button
@@ -207,10 +121,14 @@ export default function BuildersCodePage() {
         </div>
 
         <div className="mt-10 p-7 md:p-10 rounded-[var(--radius-shell)] bg-ink text-canvas">
+          <p className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.14em] text-gold mb-4">Coach Hype · value pivot</p>
+          <p className="text-[17px] leading-relaxed text-[#e2e8f0]">
+            Structure is the force multiplier. Externalize memory, bookend constraints, protect one thread — then ship.
+          </p>
           <button
             type="button"
             onClick={runAudit}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all border-0 cursor-pointer active:scale-[0.98]"
+            className="mt-6 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all border-0 cursor-pointer active:scale-[0.98]"
           >
             Run self-audit
           </button>

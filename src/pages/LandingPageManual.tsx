@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import CoachHypeMission from '../components/CoachHypeMission';
 
 const QUOTES = [
   {
@@ -177,7 +178,7 @@ export default function LandingPageManual() {
         },
       ],
       description:
-        'AuDHD-friendly scaffolded coding environment. Externalized memory, one clear next step, and evidence-based context engineering for neurodivergent builders.',
+        'Coach Hype teaches the AuDHD↔LLM cognitive analog. Scaffolded coding environment with externalized memory, cited research, and anti-slop prompt engineering.',
       featureList:
         "Builder's Code self-audit, Anti-slop prompt compiler, Bloat scanner, Active Impulsivity Shield, Local-first vaults, BYOK Harness routing, Loop Engineering",
       operatingSystem: 'Any',
@@ -420,7 +421,7 @@ export default function LandingPageManual() {
                   <span className="text-sage">Ship without the slop.</span>
                 </h1>
                 <p className="hero-entrance text-lede mt-[22px] mx-auto md:mx-0" data-stagger="3">
-                  A context-engineering workspace built from ADHD/AuDHD research. Externalized memory, one clear next step, and prompts that sound like you — not a ChatGPT template.
+                  Coach Hype teaches the cognitive analog: your AuDHD brain and your LLM share the same failure modes. SloppyXBaby is the external scaffolding — memory vaults, guardrails, and prompts explicit enough to survive monotropic focus.
                 </p>
                 <div className="hero-entrance mt-8 flex flex-wrap gap-3 justify-center md:justify-start" data-stagger="4">
                   <a href="#scanner" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-white bg-sage hover:bg-sage-glow transition-colors no-underline active:scale-[0.98]">
@@ -446,35 +447,7 @@ export default function LandingPageManual() {
           </div>
         </section>
 
-        {/* AuDHD positioning */}
-        <section id="audhd" className="py-10 md:py-14">
-          <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
-            <div className="reveal p-8 md:p-10 rounded-[var(--radius-shell)] bg-sage-dim border border-hairline text-center md:text-left">
-              <span className="eyebrow justify-center md:justify-start">
-                <span className="eyebrow-dot" />
-                Built for AuDHD builders
-              </span>
-              <p className="text-lede mt-4 mx-auto md:mx-0 max-w-[720px]">
-                Vibe coding is an AuDHD recipe for shiny-object syndrome at scale. SloppyXBaby maps working-memory research,
-                monotropism, and executive-function guardrails onto a real coding workspace — so your LLM stops forgetting the point.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
-                <Link
-                  to="/the-code"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-white bg-sage hover:bg-sage-glow transition-colors no-underline active:scale-[0.98]"
-                >
-                  Read The Builder&apos;s Code
-                </Link>
-                <a
-                  href="#evidence"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-surface hover:bg-surface-solid shadow-[inset_0_0_0_1px_var(--color-hairline-strong)] transition-colors no-underline active:scale-[0.98]"
-                >
-                  See the research
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
+        <CoachHypeMission />
 
         {/* Scanner */}
         <section id="scanner" className="py-16 md:py-24 pt-6">
