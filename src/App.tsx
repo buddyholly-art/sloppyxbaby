@@ -6,6 +6,7 @@ import ThanksPage from './pages/ThanksPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import CookiesPage from './pages/CookiesPage';
+import BuildersCodePage from './pages/BuildersCodePage';
 import Workspace from './Workspace';
 import CookieBanner from './components/CookieBanner';
 
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/" element={<LandingPageManual />} />
         <Route path="/legacy" element={<LandingPage />} />
         <Route path="/tactics" element={<TacticsPage />} />
+        <Route path="/the-code" element={<BuildersCodePage />} />
         <Route path="/thanks" element={<ThanksPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />

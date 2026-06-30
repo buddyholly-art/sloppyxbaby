@@ -15,6 +15,18 @@ const QUOTES = [
     ties: ['Memory Vault, session restoration'],
   },
   {
+    text: '“Information in the middle of long contexts is systematically under-attended — place critical constraints at the start and end.”',
+    name: 'Nelson F. Liu et al.',
+    role: 'Lost in the Middle (2023)',
+    ties: ['Context positioning, prompt compiler'],
+  },
+  {
+    text: '“Monotropism means attention flows intensely through one channel. Context switches are not free — they cost working memory.”',
+    name: 'Ferguson & Creswell',
+    role: 'Monotropism attention theory',
+    ties: ['Single-thread focus, Loop Engineering'],
+  },
+  {
     text: '“Sensory preferences shape attention. Low-arousal environments reduce cognitive load.”',
     name: 'Winnie Dunn',
     role: 'University of Kansas Medical Center',
@@ -30,7 +42,7 @@ const QUOTES = [
     text: '“The real cost of a model is money, space, and maintenance over time.”',
     name: 'Andrej Karpathy',
     role: 'OpenAI / Tesla',
-    ties: ['TCO board'],
+    ties: ['CapEx / TCO board'],
   },
 ];
 
@@ -367,6 +379,13 @@ export default function LandingPageManual() {
             >
               Pricing
             </a>
+            <Link
+              to="/the-code"
+              onClick={() => setNavOpen(false)}
+              className="px-4 py-2.5 rounded-[var(--radius-pill)] text-[13.5px] font-semibold text-muted hover:bg-white/60 hover:text-ink transition-all duration-200 no-underline"
+            >
+              The Code
+            </Link>
           </div>
 
           <button
@@ -392,14 +411,14 @@ export default function LandingPageManual() {
               <div>
                 <span className="hero-entrance eyebrow" data-stagger="1">
                   <span className="eyebrow-dot" />
-                  DeepSeek-V3 / R1 reasoning routes
+                  AuDHD-friendly scaffolded coding environment
                 </span>
                 <h1 className="hero-entrance text-display mt-6" data-stagger="2">
-                  Your ideas are good.{' '}
-                  <span className="text-sage">Your prompts are sloppy.</span>
+                  Scaffold the thread.{' '}
+                  <span className="text-sage">Ship without the slop.</span>
                 </h1>
                 <p className="hero-entrance text-lede mt-[22px] mx-auto md:mx-0" data-stagger="3">
-                  SloppyXBaby turns brain dumps into structured, voice-specific specs — so you stop sounding like a ChatGPT template and start shipping what you actually meant.
+                  A context-engineering workspace built from ADHD/AuDHD research. Externalized memory, one clear next step, and prompts that sound like you — not a ChatGPT template.
                 </p>
                 <div className="hero-entrance mt-8 flex flex-wrap gap-3 justify-center md:justify-start" data-stagger="4">
                   <a href="#scanner" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-white bg-sage hover:bg-sage-glow transition-colors no-underline active:scale-[0.98]">
@@ -420,6 +439,36 @@ export default function LandingPageManual() {
                 <p className="mt-[18px] text-center font-[var(--font-mono)] text-sm tracking-[0.14em] uppercase text-gold">
                   Sloppy · X · Baby
                 </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* AuDHD positioning */}
+        <section id="audhd" className="py-10 md:py-14">
+          <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
+            <div className="reveal p-8 md:p-10 rounded-[var(--radius-shell)] bg-sage-dim border border-hairline text-center md:text-left">
+              <span className="eyebrow justify-center md:justify-start">
+                <span className="eyebrow-dot" />
+                Built for AuDHD builders
+              </span>
+              <p className="text-lede mt-4 mx-auto md:mx-0 max-w-[720px]">
+                Vibe coding is an AuDHD recipe for shiny-object syndrome at scale. SloppyXBaby maps working-memory research,
+                monotropism, and executive-function guardrails onto a real coding workspace — so your LLM stops forgetting the point.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
+                <Link
+                  to="/the-code"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-white bg-sage hover:bg-sage-glow transition-colors no-underline active:scale-[0.98]"
+                >
+                  Read The Builder&apos;s Code
+                </Link>
+                <a
+                  href="#evidence"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-surface hover:bg-surface-solid shadow-[inset_0_0_0_1px_var(--color-hairline-strong)] transition-colors no-underline active:scale-[0.98]"
+                >
+                  See the research
+                </a>
               </div>
             </div>
           </div>
@@ -601,12 +650,14 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
             </div>
             <div className="grid md:grid-cols-2 gap-5 mt-8 reveal">
               <div className="stagger-child p-8 rounded-[var(--radius-core)] bg-white/50 border border-hairline">
+                <span className="inline-block mb-2 px-2.5 py-[5px] rounded-[var(--radius-pill)] bg-sage-dim text-sage font-[var(--font-mono)] text-[10.5px]">Externalized memory</span>
                 <h3 className="text-xl font-bold mb-2.5">Local-first vaults</h3>
-                <p className="text-[15px] text-muted leading-relaxed">Your context state, prompt specs, and SSOT architecture live in your browser's local storage and sync directly to your encrypted cloud vault. We never see your raw prompts.</p>
+                <p className="text-[15px] text-muted leading-relaxed">Your context state, prompt specs, and SSOT architecture live in your browser&apos;s local storage and sync directly to your encrypted cloud vault. Baddeley&apos;s working-memory model, implemented — we never see your raw prompts.</p>
               </div>
               <div className="stagger-child p-8 rounded-[var(--radius-core)] bg-white/50 border border-hairline">
+                <span className="inline-block mb-2 px-2.5 py-[5px] rounded-[var(--radius-pill)] bg-gold-soft text-ink font-[var(--font-mono)] text-[10.5px]">The Harness</span>
                 <h3 className="text-xl font-bold mb-2.5">Bring Your Own Key</h3>
-                <p className="text-[15px] text-muted leading-relaxed">Connect your OpenAI, Anthropic, or DeepSeek API routes. Pay wholesale token prices directly to the provider. We don't markup compute or hold your keys on our servers.</p>
+                <p className="text-[15px] text-muted leading-relaxed">Connect your OpenAI, Anthropic, or DeepSeek API routes. The Harness holds your keys locally and routes by task tier — wholesale OpEx to the provider, zero compute markup on our side.</p>
               </div>
             </div>
           </div>
@@ -649,7 +700,7 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                 </p>
                 <h2 className="text-section mt-4">Every prompt is a loop. We engineer the loop, not just the output.</h2>
                 <p className="text-lede mt-3" style={{ color: '#94a3b8' }}>
-                  SloppyXBaby runs on a disciplined loop architecture: Trigger → Skill → Verify → State. That is why the compiler improves instead of spinning.
+                  SloppyXBaby runs on a disciplined agent loop: Trigger → Skill → Verify → State. Monotropism-friendly — one thread, scored iterations, persisted history — so the compiler improves instead of spinning.
                 </p>
                 <div className="loop-grid">
                   <div className="loop-card stagger-child">
@@ -814,7 +865,9 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
                 Pricing
               </span>
               <h2 className="text-section mt-4">Pick your path</h2>
-              <p className="text-lede mt-3 mx-auto">No bloated feature grids. No hidden compute markups.</p>
+              <p className="text-lede mt-3 mx-auto">
+                CapEx once (lifetime) or OpEx monthly — both routes include the full workspace. No bloated feature grids. No hidden compute markups.
+              </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 max-w-[840px] mx-auto reveal">
@@ -925,6 +978,8 @@ OUTPUT: Component copy only, ready to drop into a Next.js page.`}
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 flex-wrap">
             <span className="text-sm text-muted">© {new Date().getFullYear()} SloppyXBaby. Built for distracted builders.</span>
             <nav className="flex flex-wrap gap-6" aria-label="Footer">
+              <Link to="/the-code" className="text-sm text-muted no-underline hover:text-pink transition-colors">The Code</Link>
+              <Link to="/tactics" className="text-sm text-muted no-underline hover:text-pink transition-colors">Tactics</Link>
               <a href="/prompt-compiler" className="text-sm text-muted no-underline hover:text-pink transition-colors">Prompt Compiler</a>
               <a href="/ssot-auditor" className="text-sm text-muted no-underline hover:text-pink transition-colors">SSOT Auditor</a>
               <a href="/vector-rag" className="text-sm text-muted no-underline hover:text-pink transition-colors">Vector RAG</a>
