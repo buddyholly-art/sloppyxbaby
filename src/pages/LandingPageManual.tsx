@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import CoachHypeMission from '../components/CoachHypeMission';
+import SloppyPromptTour from '../components/SloppyPromptTour';
+import { DEMO_PROMPT_SCENARIOS, type DemoPromptScenario } from '../lib/demoPromptScenarios';
 
 const QUOTES = [
   {
@@ -47,73 +49,14 @@ const QUOTES = [
   },
 ];
 
-const FLAG_POOL = [
-  'nested context loops',
-  'vague constraints',
-  'fake metrics risk',
-  'role ambiguity',
-  'output format missing',
-  'dopamine-heavy phrasing',
-  'no guardrails',
-];
-
 function prefersReducedMotion() {
   if (typeof window === 'undefined') return false;
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-function countUp(
-  setter: (value: string) => void,
-  endValue: number,
-  suffix: string,
-  duration: number,
-  decimals = 0
-) {
-  if (prefersReducedMotion()) {
-    setter(endValue.toFixed(decimals) + suffix);
-    return;
-  }
-  const startTime = performance.now();
-  const startValue = 0;
-  const range = endValue - startValue;
-
-  function step(now: number) {
-    const progress = Math.min((now - startTime) / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    const current = startValue + range * eased;
-    setter(current.toFixed(decimals) + suffix);
-    if (progress < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
 export default function LandingPageManual() {
   const [navOpen, setNavOpen] = useState(false);
-
-  const [prompt, setPrompt] = useState('');
-  const [scanning, setScanning] = useState(false);
-  const [scanError, setScanError] = useState('');
-  const [scanResult, setScanResult] = useState<{
-    score: number;
-    flags: string[];
-    summary: string;
-    debt: string;
-    context: string;
-    bloat: string;
-    barDebt: string;
-    barContext: string;
-    barBloat: string;
-  } | null>(null);
-
-  const [displayScore, setDisplayScore] = useState('0%');
-  const [displayDebt, setDisplayDebt] = useState('0.00');
-  const [displayContext, setDisplayContext] = useState('0%');
-  const [displayBloat, setDisplayBloat] = useState('0.0σ');
-
-  const [generating, setGenerating] = useState(false);
-  const [generated, setGenerated] = useState<string | null>(null);
-  const [generateError, setGenerateError] = useState('');
-
+  const [activeScenario, setActiveScenario] = useState<DemoPromptScenario | null>(DEMO_PROMPT_SCENARIOS[0]);
   const [quoteIndex, setQuoteIndex] = useState(0);
 
   const quoteTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -185,82 +128,7 @@ export default function LandingPageManual() {
     };
   }, []);
 
-  // Count-up animation when scan result appears
-  useEffect(() => {
-    if (!scanResult) return;
-    const score = scanResult.score;
-    const debtVal = score / 100 * 0.8 + 0.1;
-    const contextVal = Math.floor(score * 0.6);
-    const bloatVal = score / 30;
-
-    countUp(setDisplayScore, score, '%', 900, 0);
-    countUp(setDisplayDebt, debtVal, '', 900, 2);
-    countUp(setDisplayContext, contextVal, '%', 900, 0);
-    countUp(setDisplayBloat, bloatVal, 'σ', 900, 1);
-  }, [scanResult]);
-
-  const runAudit = () => {
-    const text = prompt.trim();
-    if (!text) {
-      setScanError('Paste a prompt first.');
-      return;
-    }
-    setScanError('');
-    setGenerated(null);
-    setGenerateError('');
-    setScanning(true);
-
-    setTimeout(() => {
-      const score = Math.min(92, Math.max(34, Math.floor(text.length / 8) + 28));
-      const flags: string[] = [];
-      if (text.length < 80) flags.push('vague constraints');
-      if (!/role|task|output|constraint/i.test(text)) flags.push('role ambiguity');
-      if (/features?|testimonials?|premium|approachable/i.test(text)) flags.push('fake metrics risk');
-      if (!/avoid|don't|never/i.test(text)) flags.push('no guardrails');
-      while (flags.length < 3) {
-        const extra = FLAG_POOL[Math.floor(Math.random() * FLAG_POOL.length)];
-        if (!flags.includes(extra)) flags.push(extra);
-      }
-
-      const debtVal = score / 100 * 0.8 + 0.1;
-      const contextVal = Math.floor(score * 0.6);
-      const bloatVal = score / 30;
-
-      setScanResult({
-        score,
-        flags: flags.slice(0, 3),
-        summary: `Your prompt scores ${score}% bloat risk. The compiler can collapse this into one structured spec with role, task, constraints, and output format.`,
-        debt: debtVal.toFixed(2),
-        context: `${contextVal}%`,
-        bloat: `${bloatVal.toFixed(1)}σ`,
-        barDebt: `${Math.min(100, score * 0.7)}%`,
-        barContext: `${Math.min(100, score * 0.6)}%`,
-        barBloat: `${Math.min(100, score)}%`,
-      });
-      setScanning(false);
-    }, 900);
-  };
-
-  const runGenerate = async () => {
-    if (!prompt.trim()) return;
-    setGenerating(true);
-    setGenerateError('');
-    setGenerated(null);
-    try {
-      const res = await fetch('/api/generate-prompt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Request failed');
-      setGenerated(data.result?.advocatePrompt ?? data.result ?? JSON.stringify(data.result, null, 2));
-    } catch (err: any) {
-      setGenerateError(err.message || 'Could not generate prompt');
-    } finally {
-      setGenerating(false);
-    }
-  };
+  const selectedScenario = activeScenario;
 
   const checkout = async (plan: 'monthly' | 'lifetime', btn: HTMLButtonElement | null) => {
     if (btn) btn.style.transform = 'scale(0.98)';
@@ -379,7 +247,7 @@ export default function LandingPageManual() {
                 </p>
                 <div className="hero-entrance mt-8 flex flex-col items-center md:items-start gap-3" data-stagger="5">
                   <a href="#scanner" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-white bg-sage hover:bg-sage-glow transition-colors no-underline active:scale-[0.98]">
-                    Scan my prompt (free, local)
+                    Try a demo scan (free, local)
                   </a>
                   <p className="text-sm text-muted m-0 text-center md:text-left">
                     Full codespace: compile · vault · run on your keys →{' '}
@@ -411,114 +279,21 @@ export default function LandingPageManual() {
           <div className="w-full max-w-[1160px] mx-auto px-6 relative z-[2]">
             <div className="card-shell reveal">
               <div className="card-core panel-dark p-7 md:p-12">
-                <div className="grid md:grid-cols-2 gap-9 items-start">
-                  <div>
-                    <p className="eyebrow">
-                      <span className="eyebrow-dot" />
-                      Free slop scan
-                    </p>
-                    <h2 className="text-section mt-4">Paste your current prompt. We'll show you what's bleeding tokens.</h2>
-                    <p className="text-lede mt-3" style={{ color: '#94a3b8' }}>
-                      No signup. The audit runs locally in your browser.
-                    </p>
-                    <label className="sr-only" htmlFor="scannerInput">
-                      Paste your prompt
-                    </label>
-                    <textarea
-                      id="scannerInput"
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      className="scanner-input mt-6"
-                      placeholder="e.g. build me a login system with magic links and decent UX"
-                    />
-                    <div className="mt-4 flex flex-wrap items-center gap-3">
-                      <button
-                        onClick={runAudit}
-                        disabled={scanning}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-white bg-sage hover:bg-sage-glow transition-colors border-0 cursor-pointer active:scale-[0.98] disabled:opacity-70"
-                      >
-                        {scanning ? 'Auditing…' : 'Run Impulsivity & Bloat Audit'}
-                      </button>
-                      {scanError && <span className="text-sm text-pink">{scanError}</span>}
-                    </div>
-
-                    <div className={`scanner-result-accordion ${scanResult ? 'visible' : ''}`}>
-                      <div className="mt-6 p-6 rounded-2xl bg-[rgba(0,0,0,0.25)] border border-slate-2">
-                        <div className="flex items-baseline gap-3 mb-4">
-                          <span className="font-[var(--font-mono)] text-5xl font-extrabold text-pink tracking-[-0.04em]">{displayScore}</span>
-                          <span className="font-[var(--font-mono)] text-xs text-slate-muted uppercase tracking-[0.12em]">Bloat Risk Factor</span>
-                        </div>
-                        <div className="flex flex-wrap gap-2 mb-3.5">
-                          {scanResult?.flags.map((f) => (
-                            <span key={f} className="scanner-flag">{f}</span>
-                          ))}
-                        </div>
-                        <p className="text-[#cbd5e1] text-[15px] leading-relaxed">{scanResult?.summary}</p>
-                        <div className="mt-7 pt-6 border-t border-slate-2">
-                          <p className="text-[#e2e8f0] text-[17px] font-semibold mb-3">Fix your context windows. Unlock the full compiler.</p>
-                          <div className="flex flex-wrap gap-3">
-                            <Link to="/app" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all no-underline active:scale-[0.98]">
-                              Open codespace
-                            </Link>
-                            <button
-                              onClick={runGenerate}
-                              disabled={generating}
-                              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-surface hover:bg-surface-solid shadow-[inset_0_0_0_1px_var(--color-hairline-strong)] transition-colors border-0 cursor-pointer active:scale-[0.98] disabled:opacity-70"
-                            >
-                              {generating ? 'Generating…' : 'Generate structured prompt'}
-                            </button>
-                          </div>
-                          {generateError && <p className="mt-3 text-sm text-pink">{generateError}</p>}
-                          {generated && (
-                            <div className="mt-4 p-4 rounded-2xl bg-[rgba(0,0,0,0.35)] border border-slate-2">
-                              <p className="text-xs font-[var(--font-mono)] uppercase tracking-wide text-sage-glow mb-2">Compiled spec</p>
-                              <pre className="whitespace-pre-wrap text-sm text-[#e2e8f0] font-[var(--font-sans)] leading-relaxed">{generated}</pre>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-6 rounded-2xl bg-[rgba(0,0,0,0.25)] border border-slate-2 font-[var(--font-mono)] text-[13px] leading-relaxed">
-                    <img
-                      src="/mqxae145-0f97ef0d-2c4a-447c-93b0-87e9b3b2721e.jpg"
-                      alt="Slop Scanner terminal interface showing token debt, context weight, and bloat factor metrics."
-                      className="w-full h-auto rounded-xl mb-[18px] border border-slate-2 shadow-[0_12px_30px_-16px_rgba(0,0,0,0.4)]"
-                    />
-                    <div className="flex items-center gap-2 mb-[18px] text-slate-muted text-[11px] uppercase tracking-[0.08em]">
-                      <span className="w-2 h-2 rounded-full bg-red-500" />
-                      <span className="w-2 h-2 rounded-full bg-amber-500" />
-                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                      Live metrics
-                    </div>
-                    <div className="flex justify-between items-center py-2.5 border-b border-slate-2">
-                      <span className="text-slate-muted">Token Debt</span>
-                      <span className="text-[#f8fafc] font-semibold">{scanResult ? displayDebt : '0.42'}</span>
-                    </div>
-                    <div className="metric-bar mt-2">
-                      <div className="metric-bar-fill" style={{ width: scanResult ? scanResult.barDebt : '42%' }} />
-                    </div>
-                    <div className="flex justify-between items-center py-2.5 border-b border-slate-2 mt-2">
-                      <span className="text-slate-muted">Context Window Weight</span>
-                      <span className="text-[#f8fafc] font-semibold">{scanResult ? displayContext : '23%'}</span>
-                    </div>
-                    <div className="metric-bar mt-2">
-                      <div className="metric-bar-fill" style={{ width: scanResult ? scanResult.barContext : '23%' }} />
-                    </div>
-                    <div className="flex justify-between items-center py-2.5 border-b border-slate-2 mt-2">
-                      <span className="text-slate-muted">Bloat Calculation</span>
-                      <span className="text-[#f8fafc] font-semibold">{scanResult ? displayBloat : '1.7σ'}</span>
-                    </div>
-                    <div className="metric-bar mt-2">
-                      <div className="metric-bar-fill" style={{ width: scanResult ? scanResult.barBloat : '68%' }} />
-                    </div>
-                    <div className="flex justify-between items-center py-2.5 mt-2">
-                      <span className="text-slate-muted">Shield Status</span>
-                      <span className="text-sage-glow font-semibold">active</span>
-                    </div>
-                  </div>
-                </div>
+                <p className="eyebrow">
+                  <span className="eyebrow-dot" />
+                  Cognitive analog demo
+                </p>
+                <h2 className="text-section mt-4">Pick a sloppy prompt. See what your brain and the model share.</h2>
+                <p className="text-lede mt-3" style={{ color: '#94a3b8' }}>
+                  Each scenario maps an AuDHD failure mode to an LLM failure mode — with citations and the scaffold that fixes both.
+                </p>
+                <SloppyPromptTour
+                  variant="dark"
+                  mode="demo"
+                  layout="split"
+                  metricsImageSrc="/mqxae145-0f97ef0d-2c4a-447c-93b0-87e9b3b2721e.jpg"
+                  onScenarioChange={setActiveScenario}
+                />
               </div>
             </div>
           </div>
@@ -535,32 +310,39 @@ export default function LandingPageManual() {
                 </p>
                 <h2 className="text-section mt-4">From slop to spec in one pass.</h2>
                 <p className="text-lede mt-3" style={{ color: '#94a3b8' }}>
-                  The left is what most people paste. The right is what SloppyXBaby compiles.
+                  Same scenario — sloppy input on the left, scaffolded spec on the right.
                 </p>
+                {selectedScenario && (
+                  <p className="text-sm text-sage-glow mt-2 font-[var(--font-mono)]">
+                    {selectedScenario.cognitive.label} · {selectedScenario.cognitive.cite}
+                  </p>
+                )}
                 <div className="grid md:grid-cols-2 gap-5 mt-7">
                   <div className="stagger-child p-6 rounded-2xl border border-slate-2 text-sm leading-relaxed bg-[rgba(255,46,125,0.08)]">
-                    <div className="font-[var(--font-mono)] text-[10px] tracking-[0.14em] uppercase text-pink mb-3">Standard LLM slop</div>
-                    <p className="text-[#e2e8f0]">Write a landing page for my coffee brand. Make it premium but approachable. Include features and testimonials.</p>
+                    <div className="font-[var(--font-mono)] text-[10px] tracking-[0.14em] uppercase text-pink mb-3">Sloppy input</div>
+                    <p className="text-[#e2e8f0] m-0">{selectedScenario?.sloppyPrompt ?? DEMO_PROMPT_SCENARIOS[0].sloppyPrompt}</p>
                   </div>
                   <div className="stagger-child p-6 rounded-2xl border border-sage-glow text-sm leading-relaxed bg-[rgba(31,77,63,0.15)]">
-                    <div className="font-[var(--font-mono)] text-[10px] tracking-[0.14em] uppercase text-sage-glow mb-3">Compiled spec</div>
+                    <div className="font-[var(--font-mono)] text-[10px] tracking-[0.14em] uppercase text-sage-glow mb-3">
+                      {selectedScenario?.compiledPrefix ?? 'Compiled spec'}
+                    </div>
+                    {selectedScenario && (
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {selectedScenario.cognitive.scaffolds.map((scaffold) => (
+                          <span key={scaffold} className="scaffold-chip">{scaffold}</span>
+                        ))}
+                      </div>
+                    )}
                     <pre className="m-0 whitespace-pre-wrap font-[var(--font-mono)] text-[13px] leading-relaxed text-[#e2e8f0]">
-{`ROLE: Senior brand copywriter for a single-origin coffee subscription.
-
-TASK: Write a mobile-first landing page for 25–34 y/o home baristas.
-
-TONE: Warm, precise, never hype. No exclamation marks.
-
-SECTIONS: Hero with email CTA, 3 proof points about sourcing, 2 real customer quotes, pricing card.
-
-GUARDRAILS: No purple gradients, no fake stats, no emojis, no placeholder names.
-
-OUTPUT: Component copy only, ready to drop into a Next.js page.`}
+                      {selectedScenario?.compiledBody ?? DEMO_PROMPT_SCENARIOS[0].compiledBody}
                     </pre>
                   </div>
                 </div>
                 <div className="mt-7">
-                  <Link to="/app?stage=compile" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all no-underline active:scale-[0.98]">
+                  <Link
+                    to={`/app?stage=compile&scenario=${selectedScenario?.id ?? DEMO_PROMPT_SCENARIOS[0].id}`}
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--radius-pill)] text-sm font-bold text-ink bg-gold hover:brightness-105 transition-all no-underline active:scale-[0.98]"
+                  >
                     Open codespace
                   </Link>
                 </div>

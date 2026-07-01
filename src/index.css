@@ -613,6 +613,198 @@ html, body {
   font-size: 11px;
 }
 
+.scenario-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--color-slate-2);
+  background: rgba(15, 23, 42, 0.45);
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: border-color 180ms var(--ease-smooth), background 180ms var(--ease-smooth);
+}
+
+.scenario-chip:hover {
+  border-color: rgba(90, 140, 122, 0.45);
+  background: rgba(31, 77, 63, 0.12);
+}
+
+.scenario-chip-active {
+  border-color: var(--color-sage-glow);
+  background: rgba(31, 77, 63, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(90, 140, 122, 0.25);
+}
+
+.scenario-chip-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.scenario-chip-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-slate-muted);
+}
+
+.scenario-chip-active .scenario-chip-tag {
+  color: var(--color-sage-glow);
+}
+
+.scanner-prompt-preview {
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--color-slate-2);
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.cognitive-insight {
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(90, 140, 122, 0.25);
+  background: rgba(31, 77, 63, 0.12);
+}
+
+.cognitive-insight-label {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(90, 140, 122, 0.18);
+  color: var(--color-sage-glow);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cognitive-parallel-grid {
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .cognitive-parallel-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.cognitive-parallel-card {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--color-slate-2);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.cognitive-parallel-heading {
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-slate-muted);
+}
+
+.cognitive-parallel-body {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #cbd5e1;
+}
+
+.cognitive-insight-bridge {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.cognitive-insight-mitigation {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #cbd5e1;
+}
+
+.cognitive-insight-cite {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-slate-muted);
+}
+
+.scaffold-chip {
+  padding: 5px 9px;
+  border-radius: var(--radius-pill);
+  background: rgba(90, 140, 122, 0.14);
+  color: var(--color-sage-glow);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.cognitive-insight-light {
+  border-color: rgba(31, 77, 63, 0.2);
+  background: var(--color-sage-soft);
+}
+
+.cognitive-parallel-card-light {
+  border-color: var(--color-hairline);
+  background: var(--color-surface-solid);
+}
+
+.cognitive-parallel-body-light {
+  color: var(--color-muted);
+}
+
+.cognitive-insight-bridge-light {
+  color: var(--color-ink);
+}
+
+.cognitive-insight-mitigation-light {
+  color: var(--color-muted);
+}
+
+.scenario-chip-light {
+  border-color: var(--color-hairline);
+  background: var(--color-surface-solid);
+  color: var(--color-ink);
+}
+
+.scenario-chip-light:hover {
+  border-color: rgba(31, 77, 63, 0.35);
+  background: var(--color-sage-soft);
+}
+
+.scenario-chip-light.scenario-chip-active {
+  border-color: var(--color-sage);
+  background: var(--color-sage-soft);
+}
+
+.scanner-prompt-preview-light {
+  border-color: var(--color-hairline);
+  background: var(--color-canvas);
+}
+
+.scanner-input-light {
+  border-color: var(--color-hairline);
+  background: var(--color-surface-solid);
+  color: var(--color-ink);
+}
+
+.scanner-input-light:focus {
+  border-color: var(--color-sage);
+  box-shadow: 0 0 0 3px rgba(31, 77, 63, 0.12);
+}
+
+.scanner-input-light::placeholder {
+  color: var(--color-muted);
+}
+
 .slider-dot {
   width: 8px;
   height: 8px;

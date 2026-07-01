@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import SkeletonViewer from "./SkeletonViewer";
 import RefinementLoop from "./RefinementLoop";
 import MemoryManager from "./MemoryManager";
 import ImpulsivityShield from "./ImpulsivityShield";
 import GravitasBoard from "./GravitasBoard";
+import SloppyPromptTour from "./SloppyPromptTour";
+import { buildCognitiveCompileContext } from "../lib/demoPromptAudit";
+import type { DemoPromptScenario } from "../lib/demoPromptScenarios";
 import {
   Sparkles, Loader2, Copy, Check, FileText, ShieldAlert, BadgeHelp, Play, History, ArrowRight, Bot, RefreshCw, Database, Award, ShieldCheck, HelpCircle, MessageSquare, User, Activity, Send, Undo, Redo, FolderTree, Brain, Lightbulb, Target, Folder, Layers, Zap, Globe, HardDrive, Building2, ClipboardList, BookOpen, Wrench, Code, Package, Cloud, Clock, Lock, Ruler, Puzzle, AlertTriangle, Shield, Crown, Scroll, Sprout, Rocket, FlaskConical, BarChart3, Pin, Settings, Search, Pencil, Monitor, GraduationCap, X, CheckCircle2, Circle, ArrowDown, Sparkle, TrendingUp, Bookmark, KeyRound, Server, XCircle, ChevronRight
 } from "lucide-react";
@@ -244,6 +248,8 @@ export default function LlmOsPromptCompiler({
   setSelectedModel,
   setActiveTab
 }: LlmOsPromptCompilerProps) {
+  const [searchParams] = useSearchParams();
+  const [activeSloppyScenario, setActiveSloppyScenario] = useState<DemoPromptScenario | null>(null);
   const [inputPrompt, setInputPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [stage, setStage] = useState("");
@@ -660,6 +666,10 @@ Now we have a solid 3-turn baseline showing how we co-design!`,
       }
     };
 
+    const cognitiveBlock = activeSloppyScenario
+      ? `\n\n${buildCognitiveCompileContext(activeSloppyScenario)}\n`
+      : "";
+
     const structuredPromptPayload = `
 [CONTEXT ENGINEERING ARCHITECTURE SCHEMATIC]
 - Target Tech Stack: ${surveyTechStack}
@@ -671,7 +681,7 @@ Now we have a solid 3-turn baseline showing how we co-design!`,
 
 [ABSOLUTE SYSTEM BOUNDARIES]
 ${surveyBoundaries.map(translateBoundary).join("\n")}
-
+${cognitiveBlock}
 [LAYPERSON FUZZY INTENT INPUT]
 ${inputPrompt}
 `.trim();
@@ -931,6 +941,19 @@ ${inputPrompt}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="prompt-optimizer-root">
         {/* Left panel: Input workspace */}
       <div className="col-span-1 lg:col-span-5 h-full flex flex-col space-y-5">
+        <SloppyPromptTour
+          variant="light"
+          mode="live"
+          layout="stacked"
+          initialScenarioId={searchParams.get("scenario") ?? undefined}
+          inputPrompt={inputPrompt}
+          onPromptChange={(text) => {
+            setInputPrompt(text);
+            setChatInput(text);
+          }}
+          onScenarioChange={setActiveSloppyScenario}
+        />
+
         {/* Dynamic Context Pipeline Progress Tracker */}
         {(() => {
           const isGoalMet = inputPrompt.trim().length >= 10;
